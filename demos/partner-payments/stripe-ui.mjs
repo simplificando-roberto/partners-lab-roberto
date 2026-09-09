@@ -45,7 +45,7 @@ if (host) {
       ['Importe', pending(payment.amount_cents)], ['Devuelto', pending(payment.refunded_cents)],
       ['Neto plataforma', pending(payment.platform_net_cents)], ['Pendiente partner', pending(payment.partner_pending_cents)],
       ['Comisión Stripe', pending(payment.stripe_fee_cents)], ['Estado', ({ succeeded: 'Pagado en pruebas', pending: 'Pendiente de pago', refunded: 'Devuelto en pruebas', failed: 'Fallido en pruebas' }[payment.status] || 'Pendiente')],
-      ['Webhook', payment.verified_webhook_event_id || 'Webhook pendiente'],
+      ['Webhook verificado', payment.verified_webhook_event_id || 'Webhook pendiente'],
     ];
     const list = document.createElement('dl');
     rows.forEach(([label, value]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = label; dd.textContent = value; list.append(dt, dd); });

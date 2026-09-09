@@ -1,6 +1,8 @@
 """Build an isolated Vercel directory without credentials or repository metadata."""
 from pathlib import Path
 import shutil
+import json
+import subprocess
 
 root = Path(__file__).resolve().parents[1]
 out = root / ".build"
@@ -15,4 +17,6 @@ for name in ("index.html", "styles.css", "app.mjs", "ledger.mjs", "stripe-ui.mjs
     shutil.copy2(frontend / name, out / "public" / name)
 (out / "public/robots.txt").write_text("User-agent: *\nDisallow: /\n")
 (out / ".vercelignore").write_text(".env*\n.git\n**/__pycache__/**\n**/*.pyc\ntests\n*.log\n")
+revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip()
+(out / "public/release.json").write_text(json.dumps({"git_commit": revision}, indent=2) + "\n")
 print("Prepared .build/ with public frontend and test-only API.")
