@@ -1,0 +1,22 @@
+{
+  "release_sha": "14859fdf11bb2c2fd0a9b37cb9fe940d59347d70",
+  "config": {
+    "configured": true,
+    "test_only": true,
+    "partner_configured": true,
+    "partner_ready": null,
+    "partner_checked": false,
+    "currency": "eur"
+  },
+  "static_hashes": {
+    "index.html": "927b21c148ba8c9a3097db3784b6b24e849ac68cf6dc50882ed41e1ab179b849",
+    "styles.css": "bf069c72362ae47ef11c66afce63390dbfdfa354b4949358a9c9a8fe628a81cc",
+    "app.mjs": "47a9e9514c679b2f49961c97e80e9a0d8e4f26e36b59cf1b786891b006a80b23",
+    "ledger.mjs": "37807541422bb797eb013b386a87d602de7225b2fe8c6736d0386f0b3f14c23e",
+    "stripe-ui.mjs": "1b103d1c00623ef4c37e10199afea7a88f92d9dea6a4d8e6db4f3eacedc0020e"
+  },
+  "different_valid_session_read": 403,
+  "different_valid_session_refund": 403,
+  "foreign_origin": 403,
+  "invalid_signature": 400
+}

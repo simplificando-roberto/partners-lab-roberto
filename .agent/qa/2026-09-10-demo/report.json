@@ -1,0 +1,326 @@
+{
+  "run_id": "2026-09-10-demo",
+  "policy_version": "exhaustive-qa/2026-09-10",
+  "selected_depth": "exhaustive",
+  "selection_signals": [
+    "billing",
+    "sessions",
+    "webhooks",
+    "concurrency",
+    "public publication",
+    "user requested exhaustive-qa"
+  ],
+  "override": {
+    "actor": "Roberto",
+    "requested_depth": "exhaustive",
+    "reason": "explicit final QA request"
+  },
+  "tested_object": {
+    "repository": "https://github.com/simplificando-roberto/partners-lab-roberto",
+    "review_base_sha": "c172a03a815cba0bb2632a2fd5143877143a11d6",
+    "deployed_sha": "14859fdf11bb2c2fd0a9b37cb9fe940d59347d70",
+    "deployment_id": "dpl_FT9GJ77DDqakMFGKQYeruniGH3QB",
+    "environment": "public Vercel demo with Stripe sandbox only",
+    "url": "https://partners-lab-roberto.vercel.app"
+  },
+  "start_time": "2026-09-09T23:20:00Z",
+  "end_time": "2026-09-09T23:32:54.984315+00:00",
+  "tool_identities": [
+    "Node.js node:test",
+    "Python3.12 pytest",
+    "Stripe SDK12.0.0",
+    "Stripe CLI",
+    "Playwright CLI0.1.18/Chromium",
+    "Playwright1.62.1",
+    "llm-delegate Luna code and visual reviewers",
+    "Vercel CLI59.3.0"
+  ],
+  "checks": [
+    {
+      "id": "node-ledger",
+      "lens": "contract/data",
+      "status": "PASS",
+      "expected": "all tests pass",
+      "actual": "8 passed",
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": 0.1,
+      "evidence": "node --test demos/partner-payments/tests/*.test.mjs"
+    },
+    {
+      "id": "python-api-security",
+      "lens": "security/contract",
+      "status": "PASS",
+      "expected": "all tests pass",
+      "actual": "19 passed; one third-party deprecation warning",
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": 1.32,
+      "evidence": "python -m pytest -q demos/partner-payments-stripe/tests"
+    },
+    {
+      "id": "hosted-stripe-payments",
+      "lens": "billing/webhooks/idempotency",
+      "status": "PASS",
+      "expected": "test charge, split, signed webhook, partial/full refunds and replay without duplicate",
+      "actual": "100 EUR with 10 EUR application fee, 90 EUR partner; 30+70 EUR returned; repeat same refund ID. Separate25 EUR paid/refunded through browser controls.",
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": null,
+      "evidence": "../../../demos/partner-payments/SANDBOX_EVIDENCE.json"
+    },
+    {
+      "id": "candidate-browser",
+      "lens": "browser/state/accessibility",
+      "status": "PASS",
+      "expected": "desktop/tablet/mobile, validation, error/retry, local refund and duplicate paths, keyboard tabs, resume, unauthorized and unconfigured states",
+      "actual": [
+        {
+          "id": "layout-desktop",
+          "status": "PASS",
+          "viewport": [
+            1440,
+            1000
+          ]
+        },
+        {
+          "id": "layout-tablet",
+          "status": "PASS",
+          "viewport": [
+            768,
+            1024
+          ]
+        },
+        {
+          "id": "layout-mobile",
+          "status": "PASS",
+          "viewport": [
+            390,
+            844
+          ]
+        },
+        {
+          "id": "validation-error-retry",
+          "status": "PASS"
+        },
+        {
+          "id": "local-partner-payment-refunds-replays-reset",
+          "status": "PASS"
+        },
+        {
+          "id": "keyboard-launch",
+          "status": "PASS"
+        },
+        {
+          "id": "refunded-resume-view",
+          "status": "PASS"
+        },
+        {
+          "id": "unauthorized-ui",
+          "status": "PASS"
+        },
+        {
+          "id": "unconfigured-simulation-rejected",
+          "status": "PASS"
+        }
+      ],
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": null,
+      "evidence": "candidate-browser.json"
+    },
+    {
+      "id": "public-browser",
+      "lens": "browser/deploy",
+      "status": "PASS",
+      "expected": "all three viewports with no errors or overflow",
+      "actual": {
+        "desktop": {
+          "overflow": false,
+          "launchContent": true,
+          "refundedView": true,
+          "checkoutDisabled": true,
+          "refundDisabled": true
+        },
+        "tablet": {
+          "overflow": false,
+          "launchContent": true,
+          "refundedView": true,
+          "checkoutDisabled": true,
+          "refundDisabled": true
+        },
+        "mobile": {
+          "overflow": false,
+          "launchContent": true,
+          "refundedView": true,
+          "checkoutDisabled": true,
+          "refundDisabled": true
+        },
+        "javascriptErrors": [],
+        "networkFailures": []
+      },
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": null,
+      "evidence": "public-qa.json"
+    },
+    {
+      "id": "deployed-identity-isolation",
+      "lens": "deploy/security",
+      "status": "PASS",
+      "expected": "exact git revision and identical static bytes; different valid session read/refund403, wrong Origin403, bad signature400",
+      "actual": {
+        "release_sha": "14859fdf11bb2c2fd0a9b37cb9fe940d59347d70",
+        "config": {
+          "configured": true,
+          "test_only": true,
+          "partner_configured": true,
+          "partner_ready": null,
+          "partner_checked": false,
+          "currency": "eur"
+        },
+        "static_hashes": {
+          "index.html": "927b21c148ba8c9a3097db3784b6b24e849ac68cf6dc50882ed41e1ab179b849",
+          "styles.css": "bf069c72362ae47ef11c66afce63390dbfdfa354b4949358a9c9a8fe628a81cc",
+          "app.mjs": "47a9e9514c679b2f49961c97e80e9a0d8e4f26e36b59cf1b786891b006a80b23",
+          "ledger.mjs": "37807541422bb797eb013b386a87d602de7225b2fe8c6736d0386f0b3f14c23e",
+          "stripe-ui.mjs": "1b103d1c00623ef4c37e10199afea7a88f92d9dea6a4d8e6db4f3eacedc0020e"
+        },
+        "different_valid_session_read": 403,
+        "different_valid_session_refund": 403,
+        "foreign_origin": 403,
+        "invalid_signature": 400
+      },
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": null,
+      "evidence": "deployment-qa.json"
+    },
+    {
+      "id": "concurrent-checkout",
+      "lens": "concurrency/recovery",
+      "status": "PASS",
+      "expected": "one Checkout for identical concurrent key and successful retry",
+      "actual": {
+        "concurrent_results": [
+          {
+            "status": 502,
+            "id": null
+          },
+          {
+            "status": 200,
+            "id": "cs_test_a1Xb0ObjXAXv5VZxMosD5q6tdorcyyq14Tqv1cNSj1NInXGHhWVsxp9uNh"
+          }
+        ],
+        "retry": {
+          "status": 200,
+          "id": "cs_test_a1Xb0ObjXAXv5VZxMosD5q6tdorcyyq14Tqv1cNSj1NInXGHhWVsxp9uNh"
+        },
+        "unique_checkout_sessions": 1,
+        "money_moved": false
+      },
+      "blocking": true,
+      "severity": "P1",
+      "duration_seconds": null,
+      "evidence": "concurrency-qa.json"
+    },
+    {
+      "id": "public-source-audit",
+      "lens": "secrets/packaging",
+      "status": "PASS",
+      "expected": "standalone source only; no credentials, tokens, logs, private app history",
+      "actual": "Tracked source inspected and scanned. Independent repository initialized from demo files; packaging script produces Vercel output and deployment succeeded.",
+      "blocking": true,
+      "severity": "P0",
+      "duration_seconds": null,
+      "evidence": "git ls-files; scripts/prepare_release.py"
+    }
+  ],
+  "findings": [
+    {
+      "id": "sdk-v12",
+      "severity": "P1",
+      "root_cause": "Adapter used client.v1, absent in pinned Stripe12.0.0",
+      "repair_status": "FIXED",
+      "evidence": "SDK compatibility regression and two hosted Stripe payment flows"
+    },
+    {
+      "id": "refund-display",
+      "severity": "P2",
+      "root_cause": "PaymentIntent remains succeeded after full refund",
+      "repair_status": "FIXED",
+      "evidence": "Charge.refunded drives display; regression test and public refunded view"
+    },
+    {
+      "id": "mobile-webhook",
+      "severity": "P2",
+      "root_cause": "Long provider identifier lacked wrapping",
+      "repair_status": "FIXED",
+      "evidence": "styles.css overflow-wrap:anywhere; final public mobile screenshot"
+    },
+    {
+      "id": "tablet-ledger",
+      "severity": "P2",
+      "root_cause": "Two-column ledger compressed copy at768px",
+      "repair_status": "FIXED",
+      "evidence": "single-column ledger below900px; final tablet screenshot"
+    },
+    {
+      "id": "repeat-checkout",
+      "severity": "P2",
+      "root_cause": "Returned session had no visible restart and fields retained defaults",
+      "repair_status": "FIXED",
+      "evidence": "Nueva prueba link; values from actual payment; candidate restart assertion and public result"
+    },
+    {
+      "id": "review-packaging",
+      "severity": "P1",
+      "root_cause": "Reviewer tried backend subdirectory directly and overlooked root packaging script",
+      "repair_status": "REJECTED_FALSE_POSITIVE",
+      "evidence": "Root README documents python3 scripts/prepare_release.py; script already tracked at reviewed c172a03; build and Vercel deployment independently successful"
+    },
+    {
+      "id": "review-webhook-marker",
+      "severity": "P2",
+      "root_cause": "Reviewed marker may change when an older valid event is replayed",
+      "repair_status": "NOT_A_DEFECT_IN_DECLARED_SCOPE",
+      "evidence": "Marker is an example of a verified webhook, not an ordered business ledger. No financial side effects in handler. UI label clarified to Webhook verificado; production event ledger explicitly excluded."
+    }
+  ],
+  "untested_areas": [
+    {
+      "area": "production money, bank payouts, Express onboarding, Billing recurring, tenant DB and production ledger",
+      "reason": "explicitly outside demo scope; no claim of production readiness"
+    },
+    {
+      "area": "Firefox/Safari and load testing",
+      "reason": "Chromium responsive coverage selected; no production capacity or cross-engine guarantee"
+    }
+  ],
+  "open_decisions": [],
+  "accepted_risks": [],
+  "artifact_sha256": {
+    "candidate-browser.json": "aa6c5dd23325c4214ba8a79b66b681ff38a737017e90a82c2a86f21d99047f19",
+    "deployment-qa.json": "c4dc3c8b822b921015133ede75dad62bdadfb209a1ef08e3989ebd8ba0616e65",
+    "concurrency-qa.json": "74ec2e2b696a6af7f1bea951db4c5af10ac1cc7ac2e7f906bfafc4aae80fc03b",
+    "public-qa.json": "8f741b8fc212fde894c6264e5b3ac4e75cfb87c0399aad5af405d9b50f6e288e",
+    "logs/candidate-browser.txt": "a116562e60b7fc703ab93109bbf64e25a0dd67fceaceca04c6ef7d3a398e26bf",
+    "screenshots/candidate-mobile.png": "7faabe69a5945870433c67da3821748ad034de4c6424fa312ee1f1fdc87fd616",
+    "screenshots/public-polished-tablet.png": "f7802d7009288acd963c91cf9e700be5d763416484a60b36c1ceda33f3008047",
+    "screenshots/partners-mobile.png": "b1b4e67841d65bbaf56c9a58fe88af97383881e3c5ed9fd192838a1bc73f350f",
+    "screenshots/refunded-mobile.png": "7e8998619db188e0f2263bca78131521021a2a5efc2b21010da501daccebad0e",
+    "screenshots/public-polished-mobile.png": "7faabe69a5945870433c67da3821748ad034de4c6424fa312ee1f1fdc87fd616",
+    "screenshots/invalid-amount-mobile.png": "c8498fc4a3a1bf7673b8db26272f45899e7601b25b5111622db61581c565d287",
+    "screenshots/launch-mobile.png": "03a7a0a48e45545d6135fa629e8a1e1dc7b830e220038cc3b3640e38d9039595",
+    "screenshots/refunded-desktop.png": "aadae5ec17c056b831e359f546697b360386740274c4a4632cfd8e65fc0b0273",
+    "screenshots/candidate-tablet.png": "f7802d7009288acd963c91cf9e700be5d763416484a60b36c1ceda33f3008047",
+    "screenshots/public-polished-refund-desktop.png": "a18d9c943af9482930e8b682ba95b91867d242b26b4e0778eb0f24c2bd8ce00e",
+    "screenshots/public-polished-refund-tablet.png": "411954a2aa41aa0da1a6615aa00611b3bc6c81d40c4d0882cab52d5e9342245e",
+    "screenshots/public-polished-refund-mobile.png": "1ff853be7b3971f2d0a92659dbfa8e8f55720a929c5bc9e4ba89af3326e3ea84",
+    "screenshots/candidate-desktop.png": "2f016d998dbe609bada7f5b9b9e7a26d0ecfa56917056c0aa720dd25284e32dc",
+    "screenshots/public-polished-desktop.png": "2f016d998dbe609bada7f5b9b9e7a26d0ecfa56917056c0aa720dd25284e32dc",
+    "reviews/code-security.json": "f9e0900013ef09fa7ce609fb9f49ab716be4663d04d8f5039c075bccb33da75c",
+    "reviews/visual.json": "ca33733b6a75b8522853731bececac0b910cf44cf60ca71d988a7246fcb31da7"
+  },
+  "verdict": "PASS"
+}

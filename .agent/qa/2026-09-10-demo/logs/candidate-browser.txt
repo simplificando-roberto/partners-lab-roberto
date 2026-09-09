@@ -1,0 +1,2 @@
+### Result
+{"checks":[{"id":"layout-desktop","status":"PASS","viewport":[1440,1000]},{"id":"layout-tablet","status":"PASS","viewport":[768,1024]},{"id":"layout-mobile","status":"PASS","viewport":[390,844]},{"id":"validation-error-retry","status":"PASS"},{"id":"local-partner-payment-refunds-replays-reset","status":"PASS"},{"id":"keyboard-launch","status":"PASS"},{"id":"refunded-resume-view","status":"PASS"},{"id":"unauthorized-ui","status":"PASS"},{"id":"unconfigured-simulation-rejected","status":"PASS"}],"javascriptErrors":[],"mockedApi":true}

@@ -1,0 +1,25 @@
+{
+  "desktop": {
+    "overflow": false,
+    "launchContent": true,
+    "refundedView": true,
+    "checkoutDisabled": true,
+    "refundDisabled": true
+  },
+  "tablet": {
+    "overflow": false,
+    "launchContent": true,
+    "refundedView": true,
+    "checkoutDisabled": true,
+    "refundDisabled": true
+  },
+  "mobile": {
+    "overflow": false,
+    "launchContent": true,
+    "refundedView": true,
+    "checkoutDisabled": true,
+    "refundDisabled": true
+  },
+  "javascriptErrors": [],
+  "networkFailures": []
+}

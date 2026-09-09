@@ -1,0 +1,43 @@
+{
+  "tested_sha": "c172a03a815cba0bb2632a2fd5143877143a11d6",
+  "verdict": "PASS",
+  "screenshots_reviewed": [
+    "candidate-desktop.png",
+    "candidate-tablet.png",
+    "candidate-mobile.png",
+    "partners-mobile.png",
+    "launch-mobile.png",
+    "invalid-amount-mobile.png",
+    "refunded-desktop.png",
+    "refunded-mobile.png"
+  ],
+  "findings": [
+    {
+      "severity": "P2",
+      "file/selector": "styles.css:4, .stripe-sandbox [data-stripe-result] dd",
+      "evidence": "refunded-mobile.png clips the long Stripe webhook event ID at the right edge.",
+      "reproduction": "Return from Stripe with a session_id and view the refunded state at mobile width.",
+      "suggested_fix": "Apply overflow-wrap:anywhere or word-break:break-word to result dd values."
+    },
+    {
+      "severity": "P2",
+      "file/selector": "styles.css:6, .ledger",
+      "evidence": "candidate-tablet.png compresses the ledger text column to a very narrow vertical column beside the action buttons.",
+      "reproduction": "View the Cobros panel at tablet width around 768px.",
+      "suggested_fix": "Use a single-column ledger layout below a wider breakpoint, placing actions beneath the ledger copy."
+    },
+    {
+      "severity": "P2",
+      "file/selector": "stripe-ui.mjs:85, [data-checkout]",
+      "evidence": "refunded screenshots show Checkout disabled after returning with session_id, with no visible way to start a new Stripe test session.",
+      "reproduction": "Complete or refund a hosted Checkout session, then try to run another test from the returned page.",
+      "suggested_fix": "Provide a visible “Nuevo checkout” action that clears the session state or reloads without session_id."
+    }
+  ],
+  "untested": [
+    "No browser was launched independently; this is an artifact review of supplied Chromium screenshots plus allowed source.",
+    "Keyboard-only traversal and focus states were not separately captured.",
+    "Local approved-payment refund execution and repeat-refund interaction were not represented in the supplied screenshots.",
+    "No external network, server, or production environment was used."
+  ]
+}

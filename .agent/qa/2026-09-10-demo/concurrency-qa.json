@@ -1,0 +1,18 @@
+{
+  "concurrent_results": [
+    {
+      "status": 502,
+      "id": null
+    },
+    {
+      "status": 200,
+      "id": "cs_test_a1Xb0ObjXAXv5VZxMosD5q6tdorcyyq14Tqv1cNSj1NInXGHhWVsxp9uNh"
+    }
+  ],
+  "retry": {
+    "status": 200,
+    "id": "cs_test_a1Xb0ObjXAXv5VZxMosD5q6tdorcyyq14Tqv1cNSj1NInXGHhWVsxp9uNh"
+  },
+  "unique_checkout_sessions": 1,
+  "money_moved": false
+}

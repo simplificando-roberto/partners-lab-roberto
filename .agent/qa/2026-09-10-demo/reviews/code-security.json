@@ -1,0 +1,55 @@
+{
+  "tested_sha": "c172a03a815cba0bb2632a2fd5143877143a11d6",
+  "verdict": "FAIL",
+  "checks": [
+    {
+      "id": "contract-scope",
+      "status": "PASS",
+      "evidence": "README and DEPLOYMENT explicitly exclude production marketplace, Express onboarding, payouts, persistent ledger, tenant identity, reconciliation, billing, permissions, and emails."
+    },
+    {
+      "id": "session-csrf-isolation",
+      "status": "PASS",
+      "evidence": "Signed HttpOnly/Secure/SameSite cookie; exact Origin and JSON checks on mutating endpoints; checkout/refund/payment ownership checks at api/index.py:35-63, 104-141, 148-160. Hosted evidence records foreign-cookie access as 403."
+    },
+    {
+      "id": "test-only-live-guards",
+      "status": "PASS",
+      "evidence": "services.py:37-55 accepts only test Stripe keys and acct_ destinations; webhook rejects livemode events at api/index.py:165-177. No credentials found in scoped source/evidence."
+    },
+    {
+      "id": "idempotency-refunds-concurrency",
+      "status": "PASS",
+      "evidence": "Checkout/refund keys are UUID-validated and session-scoped; Stripe receives idempotency keys at services.py:83-106. Hosted evidence proves 30 EUR replay returned the same refund ID without duplication. Distinct concurrent keys are delegated to Stripe's refund source of truth."
+    },
+    {
+      "id": "local-tests",
+      "status": "BLOCKED",
+      "evidence": "Node tests pass. Pytest could not start because this environment's /tmp is not writable and pytest cannot create its capture tempfile; parent-supplied evidence states 9 pytest tests pass."
+    }
+  ],
+  "findings": [
+    {
+      "severity": "P1",
+      "file": "demos/partner-payments-stripe/vercel.json",
+      "line": 5,
+      "reproduction": "Deploy a clean checkout of git HEAD from demos/partner-payments-stripe using its vercel.json.",
+      "root_cause": "The Vercel manifest builds public/**, but no public/ directory exists in git HEAD; the frontend is a separate sibling directory. README line 9 and DEPLOYMENT.md line 27 require an undocumented external staging/package step.",
+      "suggested_fix": "Make the candidate self-contained: include the frontend under public/ or change the deployment root/build configuration to package demos/partner-payments deterministically."
+    },
+    {
+      "severity": "P2",
+      "file": "demos/partner-payments-stripe/api/index.py",
+      "line": 185,
+      "reproduction": "Deliver two valid signed test webhook events for the same PaymentIntent with different event IDs, then replay the older event.",
+      "root_cause": "Every accepted event calls mark_verified and overwrites demo_verified_event_id; there is no event-ID deduplication or monotonic protection. Replay has no financial effect but can make the displayed verification evidence stale.",
+      "suggested_fix": "Ignore already-seen event IDs and only set the verification marker when the existing marker is absent, or preserve an auditable event set."
+    }
+  ],
+  "untested": [
+    "Live HTTP concurrency race reproduction, because starting servers was explicitly prohibited.",
+    "Fresh browser/viewport/console run, because network and server execution were explicitly prohibited; parent supplied hosted Chromium evidence.",
+    "Clean Vercel redeploy, because deployment/network actions were explicitly prohibited.",
+    "Express onboarding and production functionality, intentionally excluded by contract."
+  ]
+}
