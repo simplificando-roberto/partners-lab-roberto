@@ -11,3 +11,6 @@
 .inspector summary::after,.refund summary::after{content:'+';margin-left:auto;padding-left:12px;font-size:1.2rem;color:var(--green)}
 .inspector[open]>summary::after,.refund[open]>summary::after{content:'−'}
 #stripeSandbox{margin-bottom:24px}
+
+.button-link{display:inline-flex;align-items:center;justify-content:center;min-height:46px;padding:9px 12px;border:1px solid var(--line);border-radius:var(--radius);font:inherit;font-weight:700;text-decoration:none}.button-link[hidden]{display:none}.button-link:hover{background:var(--soft)}
+@media(max-width:900px){.ledger{grid-template-columns:1fr}.ledger .actions{justify-content:flex-start}}

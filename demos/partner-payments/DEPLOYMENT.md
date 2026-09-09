@@ -29,7 +29,7 @@ Empaquetar `api/`, requirements.txt y vercel.json del backend junto a `public/` 
 ## Verificación y límites
 
 - 8 pruebas Node del registro simulado.
-- 9 pruebas pytest del backend, incluidas compatibilidad con el SDK instalado y estado de devolución completa.
+- 19 pruebas pytest del backend, incluidas compatibilidad con el SDK instalado y estado de devolución completa.
 - Checkout público y consultas/devoluciones reales en sandbox, con comprobación de idempotencia y pertenencia.
 
 Stripe es la fuente de verdad monetaria; la demo no implementa un ledger persistente de negocio ni efectos secundarios productivos para los webhooks. Para partners productivos quedan identidad y tenant, onboarding real, persistencia auditable, reconciliación, límites y responsabilidades. Billing recurrente, permisos, emails y operaciones se presentan como trabajo propuesto, no como integración ya completada.

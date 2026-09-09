@@ -38,6 +38,8 @@ if (host) {
 
   const renderPayment = (payment) => {
     currentPayment = payment;
+    body.querySelector('[data-amount]').value = payment.amount_cents == null ? '' : String(payment.amount_cents / 100);
+    body.querySelector('[data-percent]').value = payment.application_fee_cents == null || !payment.amount_cents ? '' : String(Math.round(payment.application_fee_cents * 100 / payment.amount_cents));
     const remaining = Math.max(0, (payment.amount_cents || 0) - (payment.refunded_cents || 0));
     const result = body.querySelector('[data-stripe-result]');
     result.replaceChildren();
@@ -73,7 +75,7 @@ if (host) {
       <label>Importe (€) <input data-amount type="number" min="1" max="500" step="0.01" value="25.00" inputmode="decimal"></label>
       <label>Comisión (%) <input data-percent type="number" min="0" max="30" step="1" value="10" inputmode="numeric"></label>
       <div class="actions"><button type="button" data-checkout aria-describedby="stripe-card-help">Ir a Checkout de Stripe (prueba)</button>
-      <button type="button" class="secondary" data-refresh>Actualizar resultado</button></div>
+      <button type="button" class="secondary" data-refresh>Actualizar resultado</button><a class="button-link secondary" data-new-checkout href="/" hidden>Nueva prueba</a></div>
       <div data-stripe-result></div>
       <section class="stripe-refund" data-stripe-refund-panel hidden><h3>Reembolso en Stripe sandbox</h3><p>Disponible tras un pago de prueba confirmado. El reembolso se solicita a Stripe, no a la simulación local.</p>
       <label>Devolver (€) <input data-refund-amount type="number" min="0.01" step="0.01" inputmode="decimal"></label>
@@ -83,6 +85,9 @@ if (host) {
     const refund = controls.querySelector('[data-refund]');
     refund.disabled = true;
     checkout.disabled = Boolean(checkoutId());
+    controls.querySelector('[data-new-checkout]').hidden = !checkoutId();
+    controls.querySelector('[data-amount]').disabled = Boolean(checkoutId());
+    controls.querySelector('[data-percent]').disabled = Boolean(checkoutId());
     controls.querySelector('[data-refresh]').addEventListener('click', refresh);
     checkout.addEventListener('click', async () => {
       const euros = Number(controls.querySelector('[data-amount]').value);
