@@ -1,0 +1,146 @@
+{
+  "verified_at": "2026-09-10",
+  "environment": "Stripe sandbox",
+  "url": "https://partners-lab-roberto.vercel.app",
+  "partner_type": "Custom test account",
+  "checkout_browser_completed": true,
+  "steps": {
+    "before": {
+      "checkout_session_id": "cs_test_a1G01hQ83HxfHy7QRHf9Rn2rYbbfkopRifIrYUZwr4sggcBBuu3F4hrdZ1",
+      "payment_intent_id": "pi_3UDubiAWy6B5PVpG2hOLTU1N",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "succeeded",
+      "refunded_cents": 0,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 0,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 0,
+      "partner_pending_cents": 9000,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": 660,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_1UDubjAWy6B5PVpGm8uicaIu"
+    },
+    "partial": {
+      "checkout_session_id": "cs_test_a1G01hQ83HxfHy7QRHf9Rn2rYbbfkopRifIrYUZwr4sggcBBuu3F4hrdZ1",
+      "payment_intent_id": "pi_3UDubiAWy6B5PVpG2hOLTU1N",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "succeeded",
+      "refunded_cents": 3000,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 3000,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 300,
+      "partner_pending_cents": 6300,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": 360,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UDubiAWy6B5PVpG2HGxHJPC"
+    },
+    "final": {
+      "checkout_session_id": "cs_test_a1G01hQ83HxfHy7QRHf9Rn2rYbbfkopRifIrYUZwr4sggcBBuu3F4hrdZ1",
+      "payment_intent_id": "pi_3UDubiAWy6B5PVpG2hOLTU1N",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "succeeded",
+      "refunded_cents": 10000,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 10000,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 1000,
+      "partner_pending_cents": 0,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": -340,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UDubiAWy6B5PVpG2HGxHJPC"
+    }
+  },
+  "idempotency": [
+    {
+      "step": "partial",
+      "status": 200,
+      "result": {
+        "refund_id": "re_3UDubiAWy6B5PVpG2HWQ1ogj",
+        "amount_cents": 3000,
+        "status": "succeeded"
+      }
+    },
+    {
+      "step": "partial_replay",
+      "status": 200,
+      "result": {
+        "refund_id": "re_3UDubiAWy6B5PVpG2HWQ1ogj",
+        "amount_cents": 3000,
+        "status": "succeeded"
+      }
+    }
+  ],
+  "foreign_session_http_status": 403,
+  "express_onboarding": "Not validated; hosted onboarding stopped at CAPTCHA",
+  "ui_checkout_and_refunds": {
+    "paid": {
+      "checkout_session_id": "cs_test_a1hjoAMUGUd8QJbFi8tLon9rYDaLkcxzv4XCLogqQ7byw7K2hCK03H5qo2",
+      "payment_intent_id": "pi_3UDuiwAWy6B5PVpG3exMH6M9",
+      "currency": "eur",
+      "amount_cents": 2500,
+      "status": "succeeded",
+      "refunded_cents": 0,
+      "transfer_gross_cents": 2500,
+      "transfer_reversed_cents": 0,
+      "application_fee_cents": 250,
+      "application_fee_refunded_cents": 0,
+      "partner_pending_cents": 2250,
+      "stripe_fee_cents": 104,
+      "platform_net_cents": 146,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UDuiwAWy6B5PVpG3aWh3XV2"
+    },
+    "partial": {
+      "checkout_session_id": "cs_test_a1hjoAMUGUd8QJbFi8tLon9rYDaLkcxzv4XCLogqQ7byw7K2hCK03H5qo2",
+      "payment_intent_id": "pi_3UDuiwAWy6B5PVpG3exMH6M9",
+      "currency": "eur",
+      "amount_cents": 2500,
+      "status": "succeeded",
+      "refunded_cents": 1000,
+      "transfer_gross_cents": 2500,
+      "transfer_reversed_cents": 1000,
+      "application_fee_cents": 250,
+      "application_fee_refunded_cents": 100,
+      "partner_pending_cents": 1350,
+      "stripe_fee_cents": 104,
+      "platform_net_cents": 46,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UDuiwAWy6B5PVpG3iIQogi2"
+    },
+    "full": {
+      "checkout_session_id": "cs_test_a1hjoAMUGUd8QJbFi8tLon9rYDaLkcxzv4XCLogqQ7byw7K2hCK03H5qo2",
+      "payment_intent_id": "pi_3UDuiwAWy6B5PVpG3exMH6M9",
+      "currency": "eur",
+      "amount_cents": 2500,
+      "status": "succeeded",
+      "refunded_cents": 2500,
+      "transfer_gross_cents": 2500,
+      "transfer_reversed_cents": 2500,
+      "application_fee_cents": 250,
+      "application_fee_refunded_cents": 250,
+      "partner_pending_cents": 0,
+      "stripe_fee_cents": 104,
+      "platform_net_cents": -104,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UDuiwAWy6B5PVpG3iIQogi2"
+    }
+  },
+  "independent_stripe_cli": {
+    "id": "pi_3UDubiAWy6B5PVpG2hOLTU1N",
+    "livemode": false,
+    "amount": 10000,
+    "currency": "eur",
+    "status": "succeeded",
+    "application_fee_amount": 1000,
+    "transfer_data": {
+      "destination": "acct_1UDuTCPGFpZMoNTn"
+    }
+  }
+}
