@@ -3,7 +3,7 @@
   "policy": "exhaustive-qa",
   "depth": "exhaustive",
   "base": "78dae064fcc273759bd10fa7037b4e444d4e0d4d",
-  "environment": "local real Chromium + Stripe TEST API; public Vercel pending verify",
+  "environment": "Vercel public alias + local mock Chromium",
   "verdict": "BLOCKED",
   "checks": [
     {
@@ -24,19 +24,24 @@
     {
       "id": "stripe-real",
       "result": "BLOCKED",
-      "actual": "Stripe PermissionError on account creation/retrieval with claimable rkcs_test_ key; no real Express onboarding or Express payment claimed"
+      "actual": "Local stale claimable key denied; public Express config available, but hosted mutations blocked by Vercel challenge"
     },
     {
       "id": "public-browser",
       "result": "BLOCKED",
       "actual": "Vercel Security Checkpoint code29, x-vercel-mitigated=challenge for automation; attack mode off; no bypass or protection change"
+    },
+    {
+      "id": "release-identity",
+      "result": "PASS",
+      "actual": "release.json SHA and 3 changed static assets matched public deployment; api/config Express available"
     }
   ],
   "findings": [
     {
-      "id": "claimable-key",
-      "owner": "Roberto (API key in Vercel), coordinator (verify/deploy)",
-      "status": "required input pending; Express disabled safely"
+      "id": "local-claimable-key",
+      "status": "isolated to stale local credential; full TEST key type configured in Vercel; replacement request withdrawn",
+      "owner": "coordinator"
     },
     {
       "id": "test-fixtures",
@@ -53,5 +58,7 @@
     "production multi-tenant authentication/persistence",
     "real Express completion pending key"
   ],
-  "finished_at": "2026-09-10T17:15:18.410497+00:00"
+  "finished_at": "2026-09-10T17:15:18.410497+00:00",
+  "deployed_sha": "e6ea998cf30118e07482fadcfec8c8b050928907",
+  "deployment": "dpl_2HvUGW32KSw3SPYF9nxq6V9QF8E4"
 }

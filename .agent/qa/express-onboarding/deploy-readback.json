@@ -1,0 +1,36 @@
+{
+  "deployment": "dpl_2HvUGW32KSw3SPYF9nxq6V9QF8E4",
+  "source_commit": "e6ea998cf30118e07482fadcfec8c8b050928907",
+  "results": {
+    "release.json": {
+      "http": 200,
+      "body": {
+        "git_commit": "e6ea998cf30118e07482fadcfec8c8b050928907"
+      }
+    },
+    "api/config": {
+      "http": 200,
+      "body": {
+        "configured": true,
+        "test_only": true,
+        "partner_configured": true,
+        "partner_ready": null,
+        "partner_checked": false,
+        "express_available": true,
+        "currency": "eur"
+      }
+    },
+    "index.html": {
+      "http": 200,
+      "source_matches": true
+    },
+    "styles.css": {
+      "http": 200,
+      "source_matches": true
+    },
+    "stripe-ui.mjs": {
+      "http": 200,
+      "source_matches": true
+    }
+  }
+}

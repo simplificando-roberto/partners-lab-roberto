@@ -56,6 +56,6 @@ El alta Express está implementada en este repo y cubierta por pruebas con Strip
 
 Contratos, selectores y evidencia de pruebas: `docs/express/implementation.md`.
 
-### Activar Express en esta demo
+### Configurar una copia de esta demo
 
-Configura `STRIPE_SECRET_KEY` en Vercel (Production) con una clave TEST que permita crear/consultar cuentas Connect y generar Account Links, y vuelve a desplegar. Las claves iniciales `rkcs_test_` dejan el alta Express deshabilitada. No compartas claves en issues ni en el código. [Estado de QA y evidencias](.agent/qa/express-onboarding/report.md).
+Para tu propia copia, configura `STRIPE_SECRET_KEY` en Vercel (Production) con una clave TEST que permita crear/consultar cuentas Connect y generar Account Links, y vuelve a desplegar. Las claves iniciales `rkcs_test_` dejan el alta Express deshabilitada. No compartas claves en issues ni en el código. [Estado de QA y evidencias](.agent/qa/express-onboarding/report.md).
