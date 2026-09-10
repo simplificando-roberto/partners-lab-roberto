@@ -1,7 +1,9 @@
 import json
 import time
+from pathlib import Path
 from dataclasses import replace
 from typing import Any
+from urllib.parse import quote
 
 import stripe
 from fastapi import Cookie, FastAPI, Header, HTTPException, Request, Response
@@ -23,18 +25,42 @@ from api.services import (
     require_uuid,
     verify_signed_event,
     _value,
+    AccessStore,
+    AUTH_COOKIE,
+    AUTH_MAX_AGE,
 )
 
 app = FastAPI(docs_url=None, redoc_url=None, openapi_url=None)
+SITE = Path(__file__).parent / "site"
+ASSETS = {"index.html", "styles.css", "app.mjs", "ledger.mjs", "stripe-ui.mjs", "release.json", "robots.txt"}
 
 
 @app.middleware("http")
 async def private_demo_responses(request: Request, call_next):
+    config = settings()
+    path = request.url.path
+    anonymous = (path == "/login" and request.method == "GET") or (path == "/api/login" and request.method == "POST") or (path == "/api/webhook" and request.method == "POST")
+    authenticated = config.access_ready and AccessStore(config.session_secret).read(request.cookies.get(AUTH_COOKIE), config.access_username, config.access_password)
+    if not anonymous and not authenticated:
+        if path.startswith("/api/") or path == "/api":
+            return JSONResponse({"detail": "Authentication required."}, status_code=401, headers={"Cache-Control": "no-store", "X-Robots-Tag": "noindex"})
+        if path != "/login":
+            next_url = safe_next(str(request.url.path) + (f"?{request.url.query}" if request.url.query else ""))
+            location = "/login" + (f"?next={quote(next_url, safe='')}" if next_url else "")
+            from fastapi.responses import RedirectResponse
+            return RedirectResponse(location, status_code=303, headers={"Cache-Control": "no-store"})
     response = await call_next(request)
     response.headers.setdefault("Cache-Control", "no-store")
     response.headers.setdefault("X-Robots-Tag", "noindex")
     response.headers.setdefault("X-Content-Type-Options", "nosniff")
     return response
+
+
+def safe_next(value: str | None) -> str:
+    path = value.split("?", 1)[0].split("#", 1)[0] if isinstance(value, str) else ""
+    if not isinstance(value, str) or not value.startswith("/") or value.startswith("//") or "\\" in value or any(ord(c) < 32 for c in value) or len(value) > 2048 or any(part in {".", ".."} for part in path.split("/")):
+        return "/"
+    return value
 
 
 def settings() -> Settings:
@@ -55,7 +81,11 @@ def require_json(request: Request, config: Settings) -> None:
         raise HTTPException(415, "JSON is required.")
     if request.headers.get("origin") != config.app_url:
         raise HTTPException(403, "Invalid request origin.")
-    if int(request.headers.get("content-length", "0") or 0) > MAX_BODY_BYTES:
+    try:
+        length = int(request.headers.get("content-length", "0") or 0)
+    except ValueError:
+        raise HTTPException(400, "Invalid content length.")
+    if length > MAX_BODY_BYTES:
         raise HTTPException(413, "Request is too large.")
 
 
@@ -97,6 +127,54 @@ def set_session_cookie(response: Response, token: str, exp: int) -> None:
         max_age=max(1, int(exp - time.time())),
         path="/",
     )
+
+
+def set_auth_cookie(response: Response, token: str) -> None:
+    response.set_cookie(AUTH_COOKIE, token, httponly=True, secure=True, samesite="lax", max_age=AUTH_MAX_AGE, path="/")
+
+
+def login_page(_: str = "/") -> str:
+    return '''<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Acceso · Partners Lab</title><style>*{box-sizing:border-box}body{margin:0;min-height:100vh;display:grid;place-items:center;background:#f4f5f7;color:#222;font:16px system-ui,sans-serif}main{width:min(360px,calc(100% - 40px));padding:32px;background:#fff;border:1px solid #d9dce2;border-radius:14px;box-shadow:0 12px 30px #18203314}h1{margin:0 0 8px;font-size:1.5rem}p{color:#5c6472;line-height:1.45}label{display:block;margin:18px 0 6px;font-weight:600}input{width:100%;padding:11px;border:1px solid #b9bfca;border-radius:8px;font:inherit}button{width:100%;margin-top:22px;padding:12px;border:0;border-radius:8px;background:#635bff;color:#fff;font-weight:700;font:inherit;cursor:pointer}[role=status]{min-height:1.4em;color:#a21d35}</style></head><body><main><h1>Partners Lab</h1><p>Acceso privado a la demo de sandbox.</p><form id="login" novalidate><label for="username">Usuario</label><input id="username" name="username" autocomplete="username" required><label for="password">Contraseña</label><input id="password" name="password" type="password" autocomplete="current-password" required><p id="error" role="status" aria-live="polite"></p><button>Entrar</button></form></main><script>const next=new URLSearchParams(location.search).get('next')||'/';const form=document.querySelector('#login'),error=document.querySelector('#error');form.addEventListener('submit',async e=>{e.preventDefault();error.textContent='';try{const r=await fetch('/api/login',{method:'POST',headers:{'Content-Type':'application/json','Origin':location.origin},credentials:'same-origin',body:JSON.stringify({username:form.username.value,password:form.password.value,next})});if(r.ok){const d=await r.json();location.replace(d.next||'/')}else error.textContent='Usuario o contraseña no válidos.'}catch{error.textContent='No se pudo conectar. Inténtalo de nuevo.'}});</script></body></html>'''
+
+
+@app.get("/login")
+def login(next: str = "/"):
+    return Response(login_page(next), media_type="text/html", headers={"Cache-Control": "no-store", "X-Robots-Tag": "noindex"})
+
+
+@app.post("/api/login")
+async def do_login(request: Request, response: Response):
+    config = settings()
+    if not config.access_ready:
+        raise HTTPException(503, "Demo access configuration is unavailable.")
+    require_json(request, config)
+    data = await body(request)
+    username, password = data.get("username"), data.get("password")
+    import hmac
+    def encoded(value: Any) -> bytes:
+        try:
+            return value.encode("utf-8") if isinstance(value, str) else b"\x00"
+        except UnicodeEncodeError:
+            return b"\x00"
+    username_ok = hmac.compare_digest(encoded(username), encoded(config.access_username))
+    password_ok = hmac.compare_digest(encoded(password), encoded(config.access_password))
+    valid = config.access_ready and username_ok and password_ok
+    if not valid:
+        raise HTTPException(401, "Invalid credentials.")
+    set_auth_cookie(response, AccessStore(config.session_secret).issue(config.access_username, config.access_password))
+    no_store(response)
+    return {"ok": True, "next": safe_next(data.get("next"))}
+
+
+@app.post("/api/logout")
+async def logout(request: Request, response: Response):
+    config = settings()
+    require_json(request, config)
+    await body(request)
+    response.delete_cookie(AUTH_COOKIE, path="/")
+    response.delete_cookie("partner_demo_session", path="/")
+    no_store(response)
+    return {"ok": True}
 
 
 def owned_express_account(stripe_gateway: StripeGateway, session: dict[str, Any]):
@@ -323,3 +401,26 @@ async def webhook(request: Request, stripe_signature: str | None = Header(defaul
             except stripe.StripeError:
                 raise HTTPException(502, "Payment provider unavailable.")
     return JSONResponse({"received": True}, headers={"Cache-Control": "no-store", "X-Robots-Tag": "noindex"})
+
+
+@app.get("/")
+def home():
+    return serve_asset("index.html")
+
+
+@app.get("/{path:path}")
+def static_asset(path: str):
+    # Only the bundled allowlist is reachable; arbitrary source paths stay 404.
+    if path.startswith("api/") or path.startswith("public/") or "/" in path or path not in ASSETS:
+        raise HTTPException(404, "Not found")
+    return serve_asset(path)
+
+
+def serve_asset(name: str):
+    if name not in ASSETS:
+        raise HTTPException(404, "Not found")
+    file = (SITE / name).resolve()
+    if SITE.resolve() not in file.parents or not file.is_file():
+        raise HTTPException(404, "Not found")
+    from fastapi.responses import FileResponse
+    return FileResponse(file)

@@ -1,6 +1,7 @@
 import os
 import time
 import uuid
+import hashlib
 from dataclasses import dataclass
 from typing import Any
 from urllib.parse import urlparse
@@ -34,6 +35,8 @@ class Settings:
     partner_account_id: str = os.getenv("STRIPE_PARTNER_ACCOUNT_ID", "")
     app_url: str = os.getenv("APP_URL", "").rstrip("/")
     session_secret: str = os.getenv("DEMO_SESSION_SECRET", "")
+    access_username: str = os.getenv("DEMO_ACCESS_USERNAME", "")
+    access_password: str = os.getenv("DEMO_ACCESS_PASSWORD", "")
 
     @property
     def test_key(self) -> bool:
@@ -47,6 +50,10 @@ class Settings:
     @property
     def session_ready(self) -> bool:
         return len(self.session_secret) >= 32
+
+    @property
+    def access_ready(self) -> bool:
+        return bool(self.app_url and len(self.session_secret) >= 32 and self.access_username and self.access_password)
 
     @property
     def configured(self) -> bool:
@@ -87,6 +94,42 @@ class SessionStore:
         if not isinstance(data, dict) or not isinstance(data.get("id"), str) or data.get("exp", 0) < time.time():
             raise OwnershipError("Expired demo session.")
         return data
+
+
+AUTH_COOKIE = "partner_demo_auth"
+AUTH_MAX_AGE = 8 * 60 * 60
+
+
+def credential_fingerprint(username: str, password: str) -> str:
+    return hashlib.sha256(f"{username}\0{password}".encode()).hexdigest()
+
+
+class AccessStore:
+    def __init__(self, secret: str):
+        self.serializer = URLSafeTimedSerializer(secret, salt="partner-payments-demo-auth-v1")
+
+    def issue(self, username: str, password: str) -> str:
+        now = int(time.time())
+        return self.serializer.dumps({"v": 1, "purpose": "demo-access", "fp": credential_fingerprint(username, password), "iat": now, "exp": now + AUTH_MAX_AGE})
+
+    def read(self, token: str | None, username: str, password: str) -> bool:
+        if not token:
+            return False
+        try:
+            data = self.serializer.loads(token, max_age=AUTH_MAX_AGE)
+        except BadSignature:
+            return False
+        return isinstance(data, dict) and data.get("v") == 1 and data.get("purpose") == "demo-access" and data.get("exp", 0) >= time.time() and hmac_compare(data.get("fp"), credential_fingerprint(username, password))
+
+
+def hmac_compare(left: Any, right: str) -> bool:
+    import hmac
+    if not isinstance(left, str) or not isinstance(right, str):
+        return False
+    try:
+        return hmac.compare_digest(left.encode("utf-8"), right.encode("utf-8"))
+    except UnicodeEncodeError:
+        return False
 
 
 class StripeGateway:

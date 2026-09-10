@@ -8,15 +8,17 @@ root = Path(__file__).resolve().parents[1]
 out = root / ".build"
 backend = root / "demos/partner-payments-stripe"
 frontend = root / "demos/partner-payments"
-out.mkdir(exist_ok=True)
+if out.exists():
+    shutil.rmtree(out)
+out.mkdir()
 shutil.copytree(backend / "api", out / "api", dirs_exist_ok=True, ignore=shutil.ignore_patterns("__pycache__", "*.pyc"))
 for name in ("requirements.txt", "vercel.json"):
     shutil.copy2(backend / name, out / name)
-(out / "public").mkdir(exist_ok=True)
+(out / "api/site").mkdir(exist_ok=True)
 for name in ("index.html", "styles.css", "app.mjs", "ledger.mjs", "stripe-ui.mjs"):
-    shutil.copy2(frontend / name, out / "public" / name)
-(out / "public/robots.txt").write_text("User-agent: *\nDisallow: /\n")
+    shutil.copy2(frontend / name, out / "api/site" / name)
+(out / "api/site/robots.txt").write_text("User-agent: *\nDisallow: /\n")
 (out / ".vercelignore").write_text(".env*\n.git\n**/__pycache__/**\n**/*.pyc\ntests\n*.log\n")
 revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=root, capture_output=True, text=True, check=True).stdout.strip()
-(out / "public/release.json").write_text(json.dumps({"git_commit": revision}, indent=2) + "\n")
-print("Prepared .build/ with public frontend and test-only API.")
+(out / "api/site/release.json").write_text(json.dumps({"git_commit": revision}, indent=2) + "\n")
+print("Prepared .build/ with private FastAPI frontend and test-only API.")

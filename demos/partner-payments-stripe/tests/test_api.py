@@ -5,13 +5,15 @@ from pathlib import Path
 import pytest
 from fastapi.testclient import TestClient
 
+# ACCESS_COOKIE_FIX_COMPLETE
+
 sys.path.insert(0, str(Path(__file__).parents[1]))
 from api import index  # noqa: E402
 from api.services import Settings, StripeGateway, checkout_params, payment_dto  # noqa: E402
 
 
 def config(**overrides):
-    values = dict(stripe_secret_key="sk_test_example", stripe_webhook_secret="whsec_test", partner_account_id="acct_partner", app_url="https://demo.example", session_secret="x" * 32)
+    values = dict(stripe_secret_key="sk_test_example", stripe_webhook_secret="whsec_test", partner_account_id="acct_partner", app_url="https://demo.example", session_secret="x" * 32, access_username="tester", access_password="test-password")
     values.update(overrides)
     return Settings(**values)
 
@@ -49,7 +51,9 @@ def client(monkeypatch):
     fake = FakeStripe()
     monkeypatch.setattr(index, "settings", lambda: config())
     monkeypatch.setattr(index, "gateway", lambda _: fake)
-    return TestClient(index.app), fake
+    browser = TestClient(index.app, base_url="https://demo.example")
+    browser.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    return browser, fake
 
 
 def session_cookie(client):
@@ -58,13 +62,16 @@ def session_cookie(client):
     assert response.status_code == 200
     # Make the signed cookie represent the checkout owner, without weakening the endpoint test.
     token = index.SessionStore(config().session_secret).serializer.dumps({"id": "owner", "exp": 4_000_000_000})
-    browser.cookies.set("partner_demo_session", token)
+    browser.cookies.delete("partner_demo_session")
+    browser.cookies.set("partner_demo_session", token, domain="demo.example", path="/")
     return browser
 
 
 def test_live_key_is_never_configured(monkeypatch):
     monkeypatch.setattr(index, "settings", lambda: config(stripe_secret_key="sk_live_nope"))
-    response = TestClient(index.app).get("/api/config")
+    browser = TestClient(index.app, base_url="https://demo.example")
+    browser.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    response = browser.get("/api/config")
     assert response.json() == {"configured": False, "test_only": False, "partner_configured": False, "partner_ready": None, "partner_checked": False, "express_available": False, "currency": "eur"}
     assert "sk_live" not in response.text
 
@@ -161,7 +168,8 @@ def test_session_reset_issues_new_id_without_partner_and_cookie_flags(client):
     browser, fake = client
     origin = {"Origin": "https://demo.example"}
     token, payload = index.SessionStore(config().session_secret).issue({"id": "owner", "exp": int(time.time()) + 3600, "partner_account_id": "acct_express"})
-    browser.cookies.set("partner_demo_session", token)
+    browser.cookies.delete("partner_demo_session")
+    browser.cookies.set("partner_demo_session", token, domain="demo.example", path="/")
     assert payload["id"] == "owner"
     assert payload["partner_account_id"] == "acct_express"
     reset = browser.post("/api/session/reset", json={}, headers=origin)
@@ -184,17 +192,22 @@ def test_session_reset_works_with_expired_cookie_and_rejects_bad_origin(client):
     browser, fake = client
     origin = {"Origin": "https://demo.example"}
     expired = index.SessionStore(config().session_secret).serializer.dumps({"id": "owner", "exp": 1, "partner_account_id": "acct_express"})
-    browser.cookies.set("partner_demo_session", expired)
+    browser.cookies.delete("partner_demo_session")
+    browser.cookies.set("partner_demo_session", expired, domain="demo.example", path="/")
     reset = browser.post("/api/session/reset", json={}, headers=origin)
     assert reset.status_code == 200
     after = _session_payload(_cookie_token(reset))
     assert after["id"] != "owner"
     assert "partner_account_id" not in after
-    wrong = TestClient(index.app).post("/api/session/reset", json={}, headers={"Origin": "https://evil.example"})
+    wrong = TestClient(index.app, base_url="https://demo.example")
+    wrong.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    wrong = wrong.post("/api/session/reset", json={}, headers={"Origin": "https://evil.example"})
     assert wrong.status_code == 403
-    no_json = TestClient(index.app).post("/api/session/reset", content=b"{}", headers={**origin, "Content-Type": "text/plain"})
+    no_json_client = TestClient(index.app, base_url="https://demo.example")
+    no_json_client.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    no_json = no_json_client.post("/api/session/reset", content=b"{}", headers={**origin, "Content-Type": "text/plain"})
     assert no_json.status_code == 415
-    huge = TestClient(index.app).post("/api/session/reset", content=b"x" * 20000, headers={**origin, "Content-Type": "application/json", "Content-Length": "20000"})
+    huge = no_json_client.post("/api/session/reset", content=b"x" * 20000, headers={**origin, "Content-Type": "application/json", "Content-Length": "20000"})
     assert huge.status_code == 413
 
 

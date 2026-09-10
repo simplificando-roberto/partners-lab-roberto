@@ -49,12 +49,34 @@ if (host) {
   const api = async (url, options = {}) => {
     const response = await fetch(url, { credentials: 'same-origin', ...options });
     if (!response.ok) {
+      if (response.status === 401) {
+        const next = `${location.pathname}${location.search}`;
+        location.replace(`/login?next=${encodeURIComponent(next)}`);
+      }
       const error = new Error('api');
       error.status = response.status;
       throw error;
     }
     return response.json();
   };
+
+  document.querySelector('[data-logout]')?.addEventListener('click', async () => {
+    try {
+      const response = await fetch('/api/logout', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json', 'Origin': location.origin},
+        credentials: 'same-origin',
+        body: JSON.stringify({}),
+      });
+      if (response.ok || response.status === 401) {
+        location.replace('/login');
+        return;
+      }
+      setStatus('No se pudo cerrar la sesión.');
+    } catch {
+      setStatus('No se pudo cerrar la sesión.');
+    }
+  });
   const post = (url, payload) => {
     if (resetBusy && url !== '/api/session/reset') {
       const error = new Error('reset');

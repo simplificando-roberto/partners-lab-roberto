@@ -93,7 +93,9 @@ def express_client(monkeypatch):
     fake = ExpressFake()
     monkeypatch.setattr(index, "settings", lambda: config())
     monkeypatch.setattr(index, "gateway", lambda _: fake)
-    return TestClient(index.app, base_url="https://testserver"), fake
+    browser = TestClient(index.app, base_url="https://demo.example")
+    browser.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    return browser, fake
 
 
 def signed_cookie(browser, session_id="owner", account_id=None):
@@ -101,7 +103,8 @@ def signed_cookie(browser, session_id="owner", account_id=None):
     if account_id:
         payload["partner_account_id"] = account_id
     token = index.SessionStore(config().session_secret).serializer.dumps(payload)
-    browser.cookies.set("partner_demo_session", token)
+    browser.cookies.delete("partner_demo_session")
+    browser.cookies.set("partner_demo_session", token, domain="demo.example", path="/")
     return browser
 
 
@@ -131,7 +134,9 @@ def test_claimable_key_blocks_onboarding_and_keeps_full_test_keys_available(expr
 
 def test_config_reports_express_without_custom_partner(monkeypatch):
     monkeypatch.setattr(index, "settings", lambda: config(partner_account_id=""))
-    body = TestClient(index.app).get("/api/config").json()
+    browser = TestClient(index.app, base_url="https://demo.example")
+    browser.cookies.set(index.AUTH_COOKIE, index.AccessStore(config().session_secret).issue(config().access_username, config().access_password))
+    body = browser.get("/api/config").json()
     assert body["partner_configured"] is False
     assert body["express_available"] is True
     assert body["configured"] is True
@@ -150,11 +155,12 @@ def test_session_reuses_valid_cookie_and_keeps_partner(express_client):
 def test_onboarding_is_deterministic_and_resumes_new_link(express_client):
     browser, fake = express_client
     session_cookie((browser, fake))
+    original = index.SessionStore(config().session_secret).serializer.dumps({"id": "owner", "exp": 4_000_000_000})
     first = browser.post("/api/partner/onboarding", json={"destination": "acct_evil"}, headers=ORIGIN)
     second = browser.post("/api/partner/onboarding", json={}, headers=ORIGIN)
     assert first.status_code == 200
     assert second.status_code == 200
-    assert fake.account_creates == ["demo:owner:express", "demo:owner:express"]
+    assert fake.account_creates == ["demo:owner:express"]
     assert first.json()["account"]["id"] == second.json()["account"]["id"] == "acct_express"
     assert first.json()["url"] != second.json()["url"]
     assert all(item["url"].startswith("https://connect.stripe.com/") for item in fake.account_links)
@@ -166,6 +172,12 @@ def test_onboarding_is_deterministic_and_resumes_new_link(express_client):
     assert resumed.status_code == 200
     assert fake.account_creates == []
     assert resumed.json()["url"].startswith("https://connect.stripe.com/")
+    # Simulate a lost response: restore the original no-account cookie and retry.
+    browser.cookies.delete("partner_demo_session")
+    browser.cookies.set("partner_demo_session", original, domain="demo.example", path="/")
+    retry = browser.post("/api/partner/onboarding", json={}, headers=ORIGIN)
+    assert retry.status_code == 200
+    assert fake.account_creates == ["demo:owner:express"]
 
 
 def test_onboarding_rejects_live_key_and_csrf(express_client, monkeypatch):
