@@ -1,0 +1,14 @@
+{
+  "feature": "stripe-fees-primary-summary",
+  "date": "2026-09-10",
+  "scenarios": [
+    {"name":"estimate changes","input":"100 EUR / 10% -> 200 EUR / 20%","expected":"Stripe 1.75 EUR -> 3.25 EUR; net platform 8.25 EUR -> 36.75 EUR"},
+    {"name":"known actual cost","dto":"stripe_fee_cents=340, platform_net_cents=660","expected":"3.40 EUR and 6.60 EUR in primary summary"},
+    {"name":"pending actual cost","dto":"stripe_fee_cents=null, platform_net_cents=null","expected":"Pendiente, no estimate fallback"},
+    {"name":"negative net after refund","dto":"platform_net_cents=-340","expected":"-3.40 EUR retained in primary summary"}
+  ],
+  "browser_test": "demos/partner-payments/tests/ui.browser.test.mjs",
+  "browser_status": "parent evidence before fix: 13 passed, 1 failed (old recipient copy); child Chromium may be blocked by SIGTRAP",
+  "unit_tests": ["tests/selectors.test.mjs", "tests/ledger.test.mjs"],
+  "screenshots": "No se generaron nuevas capturas: Chromium no inicia en este contenedor restringido."
+}

@@ -41,13 +41,13 @@ Para un cobro de 100 € con una comisión de plataforma del 10 %:
 
 | Concepto | Qué significa |
 | --- | --- |
-| Importe bruto | Lo que paga el cliente: 100 € |
-| Comisión de plataforma | La aplicación de la plataforma: 10 € |
-| Transferencia al partner | El resto antes del coste de Stripe: 90 € |
-| Comisión Stripe | El coste de procesamiento que informa Stripe para esa operación |
-| Neto plataforma | Comisión de plataforma menos la comisión Stripe |
+| Importe bruto cliente | Lo que paga el cliente: 100 € |
+| Comisión plataforma bruta | La comisión que gana la plataforma: 10 € |
+| Coste Stripe estimado | Estimación previa para una tarjeta estándar del EEE: 1,5 % + 0,25 € |
+| Neto plataforma | Comisión bruta menos el coste Stripe. Antes del pago es estimado; después usa el coste real de Stripe |
+| Importe partner | El resto, 90 €, que se transfiere al saldo de Stripe del partner |
 
-La vista previa muestra el reparto antes del coste real de Stripe. Después del pago, la tarjeta de resultado muestra los importes que Stripe devuelve. La comisión de Stripe depende del método y la operación, así que la demo no la presenta como una tarifa fija.
+La vista previa muestra el coste Stripe estimado de forma visible. Es una hipótesis ilustrativa, no una tarifa universal ni el coste total de Connect: otras tarjetas, divisas, cuentas y cargos adicionales pueden variar. Consulta las [tarifas oficiales de Stripe](https://stripe.com/es/pricing). Después del pago, la tarjeta de resultado usa los importes reales que devuelve Stripe; si aún no llegan, muestra **Pendiente**, sin estimar.
 
 ## Devoluciones
 
@@ -57,7 +57,7 @@ Una devolución parcial o total solicita a Stripe tres cosas relacionadas:
 - revertir la transferencia al partner en la misma proporción,
 - devolver la comisión de aplicación de la plataforma en la misma proporción.
 
-El coste de procesamiento de Stripe puede permanecer. Por eso el neto de plataforma puede quedar reducido o incluso ser negativo después de una devolución. Comprueba el resultado en `Detalles técnicos` y actualiza la consulta si el webhook todavía está pendiente.
+El coste de procesamiento de Stripe puede permanecer aunque se devuelva el cobro. Por eso el neto de plataforma puede quedar reducido o incluso ser negativo después de una devolución. El importe restante del partner refleja lo que queda en su saldo de Stripe. Comprueba el resultado en el resumen principal y actualiza la consulta si el webhook todavía está pendiente.
 
 ## Reiniciar la demo
 
@@ -77,4 +77,4 @@ No es un marketplace listo para producción. Faltan login e identidad por tenant
 
 ## La pestaña "Lanzamiento"
 
-`Lanzamiento` es una propuesta de trabajo alrededor de este recorrido. Presenta servicios posibles como acceso, billing recurrente, emails, operaciones, seguimiento y despliegue. Es contexto para una conversación de producto, no una lista de funciones ya implementadas en la demo.
+`Lanzamiento` es una propuesta explícita de trabajo alrededor de este recorrido, no una funcionalidad ya disponible. Presenta posibles siguientes fases como acceso, billing recurrente, emails, operaciones, seguimiento y despliegue para acordar alcance, prioridades y hitos.

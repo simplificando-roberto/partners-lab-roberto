@@ -53,7 +53,8 @@ test('Stripe UI conserva sesión, idempotencia, allowlist y DTO', () => {
   assert.match(stripe, /No consultado/);
   assert.match(stripe, /Disponible/);
   assert.match(stripe, /Detalles técnicos/);
-  assert.match(stripe, /comisión antes de costes de Stripe/);
+  assert.match(stripe, /STRIPE_RATE_BPS/);
+  assert.match(html, /stripe\.com\/es\/pricing/);
   assert.match(stripe, /test_only/);
   assert.match(app, /localSimulation/);
   assert.match(app, /openSim/);

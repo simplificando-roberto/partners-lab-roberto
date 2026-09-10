@@ -26,3 +26,53 @@ document.querySelector('.tabs').addEventListener('keydown', e => {
   const next = e.key === 'Home' ? 0 : e.key === 'End' ? tabs.length - 1 : (current + (e.key === 'ArrowRight' ? 1 : -1) + tabs.length) % tabs.length;
   tabs[next].click();
 });
+
+const guide = document.querySelector('[data-onboarding-guide]');
+const guideCurrent = document.querySelector('[data-onboarding-current]');
+const guideOpener = document.querySelector('[data-onboarding-open]');
+const updateGuideContext = () => {
+  if (!guideCurrent) return;
+  const active = document.querySelector('[role=tab][aria-selected="true"]')?.textContent?.trim() || 'Cobros';
+  if (active === 'Partners') {
+    guideCurrent.textContent = 'Estás en Partners. Revisa el estado de tu cuenta Express y continúa si hace falta.';
+  } else if (active === 'Lanzamiento') {
+    guideCurrent.textContent = 'Estás en Lanzamiento. Aquí ves la propuesta de servicios alrededor de la demo.';
+  } else {
+    guideCurrent.textContent = 'Estás en Cobros. Siguiente paso: elige una ruta.';
+  }
+};
+document.querySelectorAll('[role=tab]').forEach(tab => tab.addEventListener('click', updateGuideContext));
+document.querySelector('[data-onboarding-open]')?.addEventListener('click', () => {
+  if (!guide) return;
+  guide.hidden = !guide.hidden;
+  guideOpener?.setAttribute('aria-expanded', String(!guide.hidden));
+  if (!guide.hidden) guide.querySelector('[data-onboarding-close]')?.focus();
+});
+document.querySelector('[data-onboarding-close]')?.addEventListener('click', () => {
+  if (!guide) return;
+  guide.hidden = true;
+  guideOpener?.setAttribute('aria-expanded', 'false');
+  guideOpener?.focus();
+});
+document.querySelectorAll('[data-onboarding-route]').forEach(route => route.addEventListener('click', () => {
+  const destination = route.dataset.onboardingRoute;
+  if (destination === 'express') {
+    document.querySelector('#tab-partners')?.click();
+    document.querySelector('#partners')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector('[data-express-activate]')?.focus();
+    if (guideCurrent) guideCurrent.textContent = 'Ruta Express seleccionada. Revisa el estado mostrado y continúa si hace falta.';
+  } else if (destination === 'local') {
+    document.querySelector('#tab-payments')?.click();
+    const sim = document.querySelector('#localSimulation');
+    if (sim) sim.open = true;
+    sim?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    document.querySelector('#simulate')?.focus();
+    if (guideCurrent) guideCurrent.textContent = 'Simulación local seleccionada. Ajusta los importes y pulsa «Simular cobro».';
+  } else {
+    document.querySelector('#tab-payments')?.click();
+    document.querySelector('[data-checkout]')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    document.querySelector('[data-checkout]')?.focus();
+    if (guideCurrent) guideCurrent.textContent = 'Destino mostrado seleccionado. Revisa el importe y continúa cuando estés listo.';
+  }
+}));
+updateGuideContext();

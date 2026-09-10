@@ -152,7 +152,8 @@ test('express onboarding: estados, return, resume y recortes', { skip: !chromium
     await page.goto('https://candidate.invalid/', { waitUntil: 'networkidle' });
     await page.waitForSelector('[data-checkout]:not([disabled])');
     assert.match(await page.locator('[data-checkout-recipient]').innerText(), /acct_express/);
-    assert.match(await page.locator('[data-checkout-recipient]').innerText(), /transfers activo/);
+    assert.match(await page.locator('[data-checkout-recipient]').innerText(), /cuenta Express asociada/);
+    assert.equal(await page.locator('[data-checkout]').isDisabled(), false);
     await page.locator('#tab-partners').click();
     assert.match(await page.locator('[data-express-state]').innerText(), /Lista para cobros/);
     assert.equal(await page.locator('[data-express-continue]').isHidden(), true);

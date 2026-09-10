@@ -120,7 +120,17 @@ test('redesign browser: estados, pestañas, simulación y recortes', { skip: !ch
     assert.equal(await page.locator('[data-percent]').inputValue(), '10');
     assert.match(await page.locator('[data-preview-customer]').innerText(), /100,00/);
     assert.match(await page.locator('[data-preview-fee]').innerText(), /10,00/);
+    assert.match(await page.locator('[data-preview-stripe]').innerText(), /1,75/);
+    assert.equal(await page.locator('[data-preview-stripe-label]').innerText(), 'Coste Stripe estimado');
+    assert.match(await page.locator('[data-preview-net]').innerText(), /8,25/);
     assert.match(await page.locator('[data-preview-partner]').innerText(), /90,00/);
+    await page.locator('[data-amount]').fill('200');
+    await page.locator('[data-percent]').fill('20');
+    await page.waitForFunction(() => document.querySelector('[data-preview-stripe]')?.textContent.includes('3,25'));
+    assert.match(await page.locator('[data-preview-net]').innerText(), /36,75/);
+    assert.match(await page.locator('[data-preview-assumption]').innerText(), /1,5 % \+ 0,25/);
+    await page.locator('[data-amount]').fill('100');
+    await page.locator('[data-percent]').fill('10');
     assert.match(await page.locator('[data-stripe-empty]').innerText(), /Aún no hay cobros/);
     assert.doesNotMatch(await page.locator('[data-stripe-empty]').innerText(), /historial inventado/);
     assert.match(await page.locator('#stripe-card-help').innerText(), /4242 4242 4242 4242/);
@@ -186,7 +196,10 @@ test('redesign browser: estados, pestañas, simulación y recortes', { skip: !ch
     assert.match(await page.locator('[data-stripe-result]').innerText(), /Pagado en pruebas/);
     assert.match(await page.locator('[data-stripe-result]').innerText(), /3,40/);
     assert.doesNotMatch(await page.locator('[data-stripe-result]').innerText(), /\bpending\b/);
-    assert.match(await page.locator('[data-preview-caption]').innerText(), /comisión antes de costes de Stripe/);
+    assert.match(await page.locator('[data-preview-caption]').innerText(), /coste real informado/);
+    assert.match(await page.locator('[data-preview-stripe]').innerText(), /3,40/);
+    assert.equal(await page.locator('[data-preview-stripe-label]').innerText(), 'Coste Stripe confirmado');
+    assert.match(await page.locator('[data-preview-net]').innerText(), /6,60/);
     assert.equal(await page.locator('[data-stripe-refund-panel]').isVisible(), true);
     await shot(page, 'desktop-1440x1000-paid');
     await page.setViewportSize({ width: 390, height: 844 });
@@ -209,7 +222,11 @@ test('redesign browser: estados, pestañas, simulación y recortes', { skip: !ch
     assert.equal(await page.locator('[data-stripe-refund-panel]').isHidden(), true);
     assert.match(await page.locator('[data-preview-fee-label]').innerText(), /Comisión bruta/);
     assert.match(await page.locator('[data-preview-partner-note]').innerText(), /restante/i);
-    assert.match(await page.locator('[data-preview-caption]').innerText(), /comisión antes de costes de Stripe/);
+    assert.match(await page.locator('[data-preview-caption]').innerText(), /coste real informado/);
+    assert.match(await page.locator('[data-preview-net]').innerText(), /-3,40/);
+    assert.match(await page.locator('[data-preview-stripe]').innerText(), /3,40/);
+    assert.equal(await page.locator('[data-preview-stripe-label]').innerText(), 'Coste Stripe confirmado');
+    assert.match(await page.locator('[data-preview-net-note]').innerText(), /comisión devuelta/);
     await shot(page, 'desktop-1440x1000-refunded');
   } finally {
     await browser3.close();
@@ -222,6 +239,9 @@ test('redesign browser: estados, pestañas, simulación y recortes', { skip: !ch
     await page.goto('https://candidate.invalid/?session_id=cs_test_owned', { waitUntil: 'networkidle' });
     await page.waitForFunction(() => document.querySelector('[data-stripe-result]')?.innerText.includes('Pendiente'));
     assert.match(await page.locator('[data-preview-caption]').innerText(), /pendientes/i);
+    assert.equal(await page.locator('[data-preview-stripe]').innerText(), 'Pendiente');
+    assert.equal(await page.locator('[data-preview-stripe-label]').innerText(), 'Coste Stripe pendiente');
+    assert.equal(await page.locator('[data-preview-net]').innerText(), 'Pendiente');
     await shot(page, 'desktop-1440x1000-pending');
   } finally {
     await browser4.close();

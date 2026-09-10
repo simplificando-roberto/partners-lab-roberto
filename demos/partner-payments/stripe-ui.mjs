@@ -28,6 +28,8 @@ if (host) {
   const pending = (value) => value == null ? 'Pendiente' : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value / 100);
   const money = (cents) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
   const balanceStatus = (value) => ({ pending: 'Pendiente', available: 'Disponible', not_queried: 'No consultado' }[value] || 'Pendiente');
+  const STRIPE_RATE_BPS = 150;
+  const STRIPE_FIXED_CENTS = 25;
   const paymentStatus = (value) => ({ succeeded: 'Pagado en pruebas', pending: 'Pendiente de pago', refunded: 'Devuelto en pruebas', failed: 'Fallido en pruebas' }[value] || 'Pendiente');
   const appendRows = (list, rows, grouped = false) => {
     rows.forEach(([label, value]) => {
@@ -85,10 +87,10 @@ if (host) {
 
   const recipientCopy = () => {
     if (partnerAccount) {
-      if (partnerAccount.transfers_active) return `Destino del cobro: tu cuenta Express ${partnerAccount.id} (transfers activo).`;
-      return `Checkout bloqueado: la cuenta Express ${partnerAccount.id} aún no tiene transfers activo. Continúa el alta.`;
+      if (partnerAccount.transfers_active) return `Destino del cobro: tu cuenta Express asociada ${partnerAccount.id}. Es una cuenta de prueba de esta sesión TEST; el partner recibe el importe en su saldo de Stripe.`;
+      return `Checkout bloqueado: la cuenta Express ${partnerAccount.id} aún no está lista para recibir cobros. Continúa el alta.`;
     }
-    if (partnerConfigured) return 'Destino del cobro: cuenta Custom de prueba del sandbox, hasta que actives Express en Partners.';
+    if (partnerConfigured) return 'Destino del cobro: cuenta Custom de prueba del sandbox. No es tu cuenta; al activar Express se usará la cuenta asociada de esta sesión.';
     return 'Checkout bloqueado: activa cobros con Stripe en Partners.';
   };
 
@@ -203,16 +205,23 @@ if (host) {
     const amountCents = Math.round(euros * 100);
     if (!Number.isFinite(euros) || !Number.isSafeInteger(amountCents) || euros < 0 || !Number.isFinite(percent)) return;
     const fee = Math.round(amountCents * percent / 100);
+    const stripeEstimate = Math.round(amountCents * STRIPE_RATE_BPS / 10000) + STRIPE_FIXED_CENTS;
     const customer = body.querySelector('[data-preview-customer]');
     const feeEl = body.querySelector('[data-preview-fee]');
     const partnerEl = body.querySelector('[data-preview-partner]');
+    const stripeEl = body.querySelector('[data-preview-stripe]');
+    const stripeLabel = body.querySelector('[data-preview-stripe-label]');
+    const netEl = body.querySelector('[data-preview-net]');
     const note = body.querySelector('[data-preview-fee-note]');
     const caption = body.querySelector('[data-preview-caption]');
     if (customer) customer.textContent = money(amountCents);
     if (feeEl) feeEl.textContent = money(fee);
     if (partnerEl) partnerEl.textContent = money(amountCents - fee);
-    if (note) note.textContent = `Para la plataforma (${percent} %)`;
-    if (caption) caption.textContent = 'Vista previa · antes de costes de Stripe';
+    if (stripeEl) stripeEl.textContent = money(stripeEstimate);
+    if (stripeLabel) stripeLabel.textContent = 'Coste Stripe estimado';
+    if (netEl) netEl.textContent = money(fee - stripeEstimate);
+    if (note) note.textContent = `Comisión que gana la plataforma (${percent} %)`;
+    if (caption) caption.textContent = 'Vista previa · incluye una estimación del coste Stripe';
   };
 
   const renderPayment = (payment) => {
@@ -226,12 +235,12 @@ if (host) {
     const summary = document.createElement('dl');
     summary.className = 'result-grid';
     appendRows(summary, [
-      ['Importe', pending(payment.amount_cents)],
+      ['Importe bruto cliente', pending(payment.amount_cents)],
       ['Devuelto', pending(payment.refunded_cents)],
-      ['Comisión de plataforma', pending(payment.application_fee_cents)],
+      ['Comisión plataforma bruta', pending(payment.application_fee_cents)],
       ['Comisión Stripe', pending(payment.stripe_fee_cents)],
       ['Neto plataforma', pending(payment.platform_net_cents)],
-      ['Pendiente partner', pending(payment.partner_pending_cents)],
+      ['Importe partner', pending(payment.partner_pending_cents)],
       ['Estado', paymentStatus(payment.status)],
     ], true);
     const details = document.createElement('details');
@@ -257,21 +266,35 @@ if (host) {
     const feeLabel = body.querySelector('[data-preview-fee-label]');
     const note = body.querySelector('[data-preview-fee-note]');
     const partnerNote = body.querySelector('[data-preview-partner-note]');
+    const stripeEl = body.querySelector('[data-preview-stripe]');
+    const stripeNote = body.querySelector('[data-preview-stripe-note]');
+    const stripeLabel = body.querySelector('[data-preview-stripe-label]');
+    const netEl = body.querySelector('[data-preview-net]');
+    const netNote = body.querySelector('[data-preview-net-note]');
+    const assumption = body.querySelector('[data-preview-assumption]');
     const caption = body.querySelector('[data-preview-caption]');
     if (customer) customer.textContent = pending(payment.amount_cents);
     if (feeEl) feeEl.textContent = pending(payment.application_fee_cents);
     if (partnerEl) partnerEl.textContent = pending(payment.partner_pending_cents);
+    if (stripeEl) stripeEl.textContent = pending(payment.stripe_fee_cents);
+    if (stripeLabel) stripeLabel.textContent = payment.stripe_fee_cents == null ? 'Coste Stripe pendiente' : 'Coste Stripe confirmado';
+    if (netEl) netEl.textContent = pending(payment.platform_net_cents);
+    if (stripeNote) stripeNote.textContent = payment.stripe_fee_cents == null ? 'Coste real aún no informado' : 'Coste real informado por Stripe';
+    if (netNote) netNote.textContent = payment.platform_net_cents == null ? 'Comisión y coste aún pendientes' : refunded ? 'Comisión bruta − comisión devuelta − coste Stripe' : 'Comisión bruta − coste real Stripe';
     const pct = payment.application_fee_cents == null || !payment.amount_cents ? '' : ` (${Math.round(payment.application_fee_cents * 100 / payment.amount_cents)} %)`;
     if (refunded) {
       if (feeLabel) feeLabel.textContent = 'Comisión bruta';
-      if (note) note.textContent = `Bruta para la plataforma${pct}`;
-      if (partnerNote) partnerNote.textContent = 'Importe restante';
+      if (note) note.textContent = `Comisión plataforma original${pct}; comisión de aplicación devuelta`;
+      if (partnerNote) partnerNote.textContent = 'Importe restante en el saldo del partner';
     } else {
       if (feeLabel) feeLabel.textContent = 'Comisión';
-      if (note) note.textContent = `Para la plataforma${pct}`;
-      if (partnerNote) partnerNote.textContent = 'Importe que recibe';
+      if (note) note.textContent = `Comisión plataforma original${pct}`;
+      if (partnerNote) partnerNote.textContent = 'Importe en el saldo del partner';
     }
-    if (caption) caption.textContent = payment.stripe_fee_cents == null ? 'Costes de Stripe pendientes' : 'Resultado del pago · comisión antes de costes de Stripe';
+    if (caption) caption.textContent = payment.stripe_fee_cents == null ? 'Resultado del pago · costes de Stripe pendientes' : 'Resultado del pago · coste real informado por Stripe';
+    if (assumption) assumption.innerHTML = payment.stripe_fee_cents == null
+      ? 'Stripe todavía no ha informado el coste real de esta operación. Actualiza el resultado para consultarlo.'
+      : 'Coste real de Stripe para esta operación, no una estimación. Las tarifas pueden variar por tarjeta, divisa, cuenta y Connect.';
     const refundAmount = body.querySelector('[data-refund-amount]');
     const refundButton = body.querySelector('[data-refund]');
     const refundPanel = body.querySelector('[data-stripe-refund-panel]');
@@ -304,7 +327,7 @@ if (host) {
     checkout.addEventListener('click', async () => {
       if (resetBusy) { setStatus('Espera a que termine el reinicio de la demo.'); return; }
       if (partnerAccount && !partnerAccount.transfers_active) {
-        setStatus('Checkout bloqueado hasta que transfers esté activo en tu cuenta Express.');
+        setStatus('Checkout bloqueado hasta que tu cuenta Express esté lista para recibir cobros.');
         return;
       }
       const euros = Number(amountInput().value);

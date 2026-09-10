@@ -27,6 +27,7 @@
       <button type="button" role="tab" aria-selected="false" aria-controls="launch" id="tab-launch" tabindex="-1">Lanzamiento</button>
     </div>
     <div class="topbar-actions">
+      <button type="button" class="secondary compact" data-onboarding-open aria-expanded="true" aria-controls="onboarding-guide">Cómo funciona</button>
       <button type="button" class="secondary compact" data-reset-demo>Reiniciar demo</button>
       <p class="hint reset-status" role="status" data-reset-status hidden></p>
       <a class="code-link" href="https://github.com/simplificando-roberto/partners-lab-roberto" rel="noopener noreferrer">
@@ -40,13 +41,39 @@
   <div id="live" class="feedback" aria-live="polite"></div>
 
   <main class="shell" id="inicio">
+    <aside class="onboarding" id="onboarding-guide" data-onboarding-guide aria-label="Guía rápida de la demo">
+      <div class="onboarding-head">
+        <div>
+          <p class="section-kicker">Guía rápida · 2 minutos</p>
+          <h2>Elige una ruta y prueba un cobro</h2>
+          <p class="onboarding-lede">Esta es una demo segura: todo ocurre en modo de pruebas y no mueve dinero real.</p>
+        </div>
+        <button type="button" class="onboarding-close" data-onboarding-close aria-label="Cerrar guía">Cerrar</button>
+      </div>
+      <div class="onboarding-grid">
+        <ol class="onboarding-steps">
+          <li><span>1</span><div><strong>Elige destino</strong><p>Usa el partner de ejemplo o activa tu cuenta Express TEST.</p></div></li>
+          <li><span>2</span><div><strong>Haz una prueba</strong><p>Abre Checkout con la tarjeta de prueba 4242 4242 4242 4242.</p></div></li>
+          <li><span>3</span><div><strong>Comprueba el reparto</strong><p>Consulta el resultado y, si quieres, devuelve el importe de prueba.</p></div></li>
+        </ol>
+        <div class="onboarding-routes">
+          <button type="button" class="onboarding-route" data-onboarding-route="checkout"><strong>Probar ahora</strong><span>Revisa el destino y prueba un pago.</span></button>
+          <button type="button" class="onboarding-route" data-onboarding-route="express"><strong>Activar mi partner</strong><span>Alta Express en Stripe, siempre en TEST.</span></button>
+          <button type="button" class="onboarding-route" data-onboarding-route="local"><strong>Ver simulación local</strong><span>Sin Stripe, con datos solo de esta sesión.</span></button>
+        </div>
+      </div>
+      <p class="onboarding-current" data-onboarding-current role="status">Estás en Cobros. Siguiente paso: elige una ruta.</p>
+    </aside>
+
     <section role="tabpanel" id="payments" aria-labelledby="tab-payments">
       <div class="hero">
         <div>
           <h1>Cobros que llegan a cada partner.</h1>
           <p>Prueba un pago, sigue el reparto y devuelve el importe.</p>
         </div>
-        <p class="scope env-note">Entorno de pruebas para explorar pagos y comisiones entre partners.</p>
+        <div class="hero-actions">
+          <p class="scope env-note">Entorno de pruebas para explorar pagos y comisiones entre partners.</p>
+        </div>
       </div>
 
       <section id="stripeSandbox" class="stripe-workspace" data-stripe-body>
@@ -76,7 +103,7 @@
                 </span>
               </label>
             </div>
-            <p class="recipient-line" data-checkout-recipient>Destino del cobro: se confirma al abrir Checkout.</p>
+            <p class="recipient-line" data-checkout-recipient>Destino del cobro: se confirma al abrir Checkout. La cuenta de ejemplo es independiente de tu cuenta.</p>
             <div class="actions charge-actions">
               <button type="button" class="primary" data-checkout disabled aria-describedby="stripe-card-help">
                 Probar pago con Stripe
@@ -107,7 +134,7 @@
               </h2>
               <p class="preview-caption">
                 <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8.2v.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
-                <span data-preview-caption>Vista previa · antes de costes de Stripe</span>
+                <span data-preview-caption>Vista previa · incluye una estimación del coste Stripe</span>
               </p>
             </div>
             <ol class="flow-diagram" aria-label="Cliente, plataforma y partner">
@@ -141,21 +168,32 @@
             </ol>
             <div class="split-figures">
               <div>
-                <span>Cliente</span>
+                <span>Importe bruto cliente</span>
                 <strong data-preview-customer>100,00 €</strong>
                 <small>Importe total del pago</small>
               </div>
               <div>
-                <span data-preview-fee-label>Comisión</span>
+                <span data-preview-fee-label>Comisión plataforma bruta</span>
                 <strong data-preview-fee>10,00 €</strong>
-                <small data-preview-fee-note>Para la plataforma (10 %)</small>
+                <small data-preview-fee-note>Comisión que gana la plataforma (10 %)</small>
+              </div>
+              <div class="stripe-cost-figure">
+                    <span data-preview-stripe-label>Coste Stripe estimado</span>
+                <strong data-preview-stripe>1,75 €</strong>
+                <small data-preview-stripe-note>1,5 % + 0,25 €</small>
               </div>
               <div>
-                <span data-preview-partner-label>Partner</span>
+                <span>Neto plataforma</span>
+                <strong data-preview-net>8,25 €</strong>
+                <small data-preview-net-note>Comisión bruta − coste estimado</small>
+              </div>
+              <div>
+                <span data-preview-partner-label>Importe partner</span>
                 <strong data-preview-partner>90,00 €</strong>
-                <small data-preview-partner-note>Importe que recibe</small>
+                <small data-preview-partner-note>Transferencia bruta al saldo del partner</small>
               </div>
             </div>
+            <p class="fee-assumption" data-preview-assumption>Estimación ilustrativa para una tarjeta estándar del EEE: 1,5 % + 0,25 €. <a href="https://stripe.com/es/pricing" target="_blank" rel="noopener noreferrer">Ver tarifas oficiales de Stripe</a>. No es una tarifa universal ni incluye todos los costes de Connect; otras tarjetas, divisas o cuentas pueden variar.</p>
           </article>
         </div>
 
