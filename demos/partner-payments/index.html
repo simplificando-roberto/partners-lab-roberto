@@ -74,6 +74,7 @@
                 </span>
               </label>
             </div>
+            <p class="recipient-line" data-checkout-recipient>Destino del cobro: se confirma al abrir Checkout.</p>
             <div class="actions charge-actions">
               <button type="button" class="primary" data-checkout disabled aria-describedby="stripe-card-help">
                 Probar pago con Stripe
@@ -90,7 +91,7 @@
                 <p class="hint">4242 4242 4242 4242 · fecha futura · CVC 123. No uses datos personales.</p>
                 <details class="tech-details">
                   <summary>Detalles técnicos</summary>
-                  <p class="tech-note" data-stripe-description>Sandbox TEST con partner configurado. Cuenta Custom de prueba; el alta Express no está incluida.</p>
+                  <p class="tech-note" data-stripe-description>Sandbox TEST. El destino es la cuenta Express de esta sesión o, si aún no existe, la cuenta Custom de prueba.</p>
                 </details>
               </div>
             </div>
@@ -271,11 +272,44 @@
       <div class="hero">
         <div>
           <h1>Partners y alta</h1>
-          <p>Cuentas de prueba para el simulador local. El cobro de Stripe usa una cuenta Custom configurada en el sandbox.</p>
+          <p>Activa cobros TEST con Stripe Express en esta sesión. El simulador local de Norte y Sur no usa esa cuenta.</p>
         </div>
       </div>
+      <article class="card" data-express-root>
+        <p class="section-kicker">Stripe Express · sandbox</p>
+        <h2>Activar cobros con Stripe</h2>
+        <p class="express-note">Stripe aloja el alta y recoge los datos TEST. Aquí no se pide nombre, email ni KYC. Teléfono de prueba: SMS 000000.</p>
+        <p role="status" data-express-status>Comprobando si el alta Express está disponible…</p>
+        <dl class="express-status" data-express-details hidden>
+          <div>
+            <dt>Cuenta</dt>
+            <dd data-express-id></dd>
+          </div>
+          <div>
+            <dt>Estado</dt>
+            <dd data-express-state></dd>
+          </div>
+          <div>
+            <dt>Transferencias</dt>
+            <dd data-express-transfers></dd>
+          </div>
+          <div>
+            <dt>Payouts</dt>
+            <dd data-express-payouts></dd>
+          </div>
+          <div>
+            <dt>Requisitos abiertos</dt>
+            <dd data-express-requirements></dd>
+          </div>
+        </dl>
+        <div class="express-actions">
+          <button type="button" data-express-activate disabled>Activar cobros con Stripe</button>
+          <button type="button" class="secondary" data-express-continue hidden>Continuar alta en Stripe</button>
+        </div>
+        <p class="hint">El enlace de Stripe es de un solo uso y caduca. Volver a esta página no deja la cuenta lista: hace falta la capacidad transfers activa.</p>
+      </article>
       <article class="card">
-        <p class="section-kicker">Preparación de cuenta</p>
+        <p class="section-kicker">Simulación local</p>
         <div class="partner-rows">
           <div>
             <strong>Norte</strong>
@@ -289,7 +323,7 @@
             <button type="button" id="onboard">Completar alta simulada</button>
           </div>
         </div>
-        <p class="notice">En una integración real, Stripe Hosted Onboarding realiza el alta. Esta demo no recoge KYC. La cuenta usada en Checkout es Custom de prueba; Express no está validado.</p>
+        <p class="notice">Estas cuentas son del simulador. No son el destino de Checkout ni un alta Stripe.</p>
       </article>
     </section>
 

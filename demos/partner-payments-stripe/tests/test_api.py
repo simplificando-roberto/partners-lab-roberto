@@ -64,7 +64,7 @@ def session_cookie(client):
 def test_live_key_is_never_configured(monkeypatch):
     monkeypatch.setattr(index, "settings", lambda: config(stripe_secret_key="sk_live_nope"))
     response = TestClient(index.app).get("/api/config")
-    assert response.json() == {"configured": False, "test_only": False, "partner_configured": False, "partner_ready": None, "partner_checked": False, "currency": "eur"}
+    assert response.json() == {"configured": False, "test_only": False, "partner_configured": False, "partner_ready": None, "partner_checked": False, "express_available": False, "currency": "eur"}
     assert "sk_live" not in response.text
 
 
@@ -138,6 +138,8 @@ def test_destination_partner_can_be_transfers_only():
 def test_installed_stripe_sdk_exposes_gateway_resources():
     gateway = StripeGateway("sk_test_example")
     assert callable(gateway.client.accounts.retrieve)
+    assert callable(gateway.client.accounts.create)
+    assert callable(gateway.client.account_links.create)
     assert callable(gateway.client.checkout.sessions.create)
     assert callable(gateway.client.payment_intents.retrieve)
     assert callable(gateway.client.payment_intents.update)

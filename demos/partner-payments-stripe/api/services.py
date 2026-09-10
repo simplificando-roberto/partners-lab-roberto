@@ -3,6 +3,7 @@ import time
 import uuid
 from dataclasses import dataclass
 from typing import Any
+from urllib.parse import urlparse
 
 import stripe
 from itsdangerous import BadSignature, URLSafeTimedSerializer
@@ -29,6 +30,7 @@ def _value(obj: Any, key: str, default: Any = None) -> Any:
 class Settings:
     stripe_secret_key: str = os.getenv("STRIPE_SECRET_KEY", "")
     stripe_webhook_secret: str = os.getenv("STRIPE_WEBHOOK_SECRET", "")
+    stripe_connect_webhook_secret: str = os.getenv("STRIPE_CONNECT_WEBHOOK_SECRET", "")
     partner_account_id: str = os.getenv("STRIPE_PARTNER_ACCOUNT_ID", "")
     app_url: str = os.getenv("APP_URL", "").rstrip("/")
     session_secret: str = os.getenv("DEMO_SESSION_SECRET", "")
@@ -36,6 +38,11 @@ class Settings:
     @property
     def test_key(self) -> bool:
         return self.stripe_secret_key.startswith(("sk_test_", "rk_test_", "rkcs_test_"))
+
+    @property
+    def express_key(self) -> bool:
+        # Claimable sandbox keys (rkcs_test_) cannot create or retrieve Connect accounts.
+        return self.stripe_secret_key.startswith(("sk_test_", "rk_test_")) and not self.stripe_secret_key.startswith("rkcs_test_")
 
     @property
     def session_ready(self) -> bool:
@@ -54,14 +61,18 @@ class Settings:
     def partner_configured(self) -> bool:
         return self.test_key and self.partner_account_id.startswith("acct_")
 
+    @property
+    def express_available(self) -> bool:
+        return bool(self.express_key and self.app_url and self.session_ready)
+
 
 class SessionStore:
     def __init__(self, secret: str):
         self.serializer = URLSafeTimedSerializer(secret, salt="partner-payments-demo")
 
-    def issue(self) -> tuple[str, dict[str, Any]]:
-        data = {"id": str(uuid.uuid4()), "exp": int(time.time()) + 3600}
-        return self.serializer.dumps(data), data
+    def issue(self, data: dict[str, Any] | None = None) -> tuple[str, dict[str, Any]]:
+        payload = dict(data) if data is not None else {"id": str(uuid.uuid4()), "exp": int(time.time()) + 3600}
+        return self.serializer.dumps(payload), payload
 
     def read(self, token: str | None) -> dict[str, Any]:
         if not token:
@@ -70,6 +81,9 @@ class SessionStore:
             data = self.serializer.loads(token, max_age=3600)
         except BadSignature as exc:
             raise OwnershipError("Invalid demo session.") from exc
+        account_id = data.get("partner_account_id") if isinstance(data, dict) else None
+        if account_id is not None and (not isinstance(account_id, str) or not account_id.startswith("acct_")):
+            raise OwnershipError("Invalid demo session.")
         if not isinstance(data, dict) or not isinstance(data.get("id"), str) or data.get("exp", 0) < time.time():
             raise OwnershipError("Expired demo session.")
         return data
@@ -109,6 +123,25 @@ class StripeGateway:
     def mark_verified(self, payment_intent_id: str, event_id: str):
         return self.client.payment_intents.update(payment_intent_id, params={"metadata": {"demo_verified_event_id": event_id}})
 
+    def create_express_account(self, demo_session_id: str):
+        return self.client.accounts.create(
+            params={
+                "type": "express",
+                "country": "ES",
+                "capabilities": {"card_payments": {"requested": True}, "transfers": {"requested": True}},
+                "metadata": {"demo_session_id": demo_session_id},
+            },
+            options={"idempotency_key": f"demo:{demo_session_id}:express"},
+        )
+
+    def retrieve_account(self, account_id: str):
+        return self.client.accounts.retrieve(account_id)
+
+    def create_account_link(self, account_id: str, refresh_url: str, return_url: str):
+        return self.client.account_links.create(
+            params={"account": account_id, "refresh_url": refresh_url, "return_url": return_url, "type": "account_onboarding"},
+        )
+
 
 def require_uuid(value: str) -> str:
     try:
@@ -118,7 +151,7 @@ def require_uuid(value: str) -> str:
 
 
 def checkout_params(settings: Settings, demo_session_id: str, amount: int, fee_percent: int) -> dict[str, Any]:
-    if not settings.configured or not settings.partner_configured:
+    if not settings.configured or not settings.partner_account_id.startswith("acct_"):
         raise DemoError("Demo payment configuration is unavailable.")
     if type(amount) is not int or not 100 <= amount <= 50_000:
         raise DemoError("Amount must be between EUR 1 and EUR 500.")
@@ -134,6 +167,63 @@ def checkout_params(settings: Settings, demo_session_id: str, amount: int, fee_p
         "payment_intent_data": {"application_fee_amount": fee, "transfer_data": {"destination": settings.partner_account_id}, "metadata": {"demo_session_id": demo_session_id}},
         "metadata": {"demo_session_id": demo_session_id},
     }
+
+
+def assert_owned_account(account: Any, demo_session_id: str) -> None:
+    metadata = _value(account, "metadata", {}) or {}
+    if _value(metadata, "demo_session_id") != demo_session_id:
+        raise OwnershipError("That Connect account does not belong to this demo session.")
+
+
+def hosted_onboarding_url(url: str) -> str:
+    if not isinstance(url, str):
+        raise DemoError("Stripe onboarding is unavailable.")
+    parsed = urlparse(url)
+    host = (parsed.hostname or "").lower()
+    if parsed.scheme != "https" or not (host == "connect.stripe.com" or host.endswith(".connect.stripe.com")):
+        raise DemoError("Stripe onboarding is unavailable.")
+    return url
+
+
+def partner_dto(account: Any) -> dict[str, Any]:
+    capabilities = _value(account, "capabilities", {}) or {}
+    transfers_active = _value(capabilities, "transfers") == "active"
+    requirements = _value(account, "requirements", {}) or {}
+    currently_due = _value(requirements, "currently_due") or []
+    past_due = _value(requirements, "past_due") or []
+    due_items = {item for item in list(currently_due) + list(past_due) if isinstance(item, str)}
+    disabled_reason = _value(requirements, "disabled_reason")
+    details_submitted = _value(account, "details_submitted") is True
+    if transfers_active:
+        status = "ready"
+    elif disabled_reason:
+        status = "restricted"
+    elif due_items or not details_submitted:
+        status = "incomplete"
+    else:
+        status = "pending"
+    return {
+        "id": _value(account, "id"),
+        "type": _value(account, "type") or "express",
+        "status": status,
+        "transfers_active": transfers_active,
+        "payouts_enabled": _value(account, "payouts_enabled") is True,
+        "details_submitted": details_submitted,
+        "requirements_due": len(due_items),
+    }
+
+
+def verify_signed_event(payload: bytes, signature: str | None, settings: Settings):
+    secrets = [secret for secret in (settings.stripe_webhook_secret, settings.stripe_connect_webhook_secret) if secret]
+    last_error: Exception | None = None
+    for secret in secrets:
+        try:
+            return stripe.Webhook.construct_event(payload, signature, secret, tolerance=300)
+        except (ValueError, stripe.SignatureVerificationError) as exc:
+            last_error = exc
+    if last_error is not None:
+        raise last_error
+    raise stripe.SignatureVerificationError("Invalid webhook signature.", signature)
 
 
 def belongs_to(checkout: Any, demo_session_id: str) -> None:

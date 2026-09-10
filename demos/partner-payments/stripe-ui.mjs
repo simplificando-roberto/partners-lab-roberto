@@ -6,13 +6,21 @@ if (host) {
   const description = document.querySelector('[data-stripe-description]');
   const status = document.querySelector('[data-stripe-status]');
   const empty = document.querySelector('[data-stripe-empty]');
+  const expressRoot = document.querySelector('[data-express-root]');
   const params = new URLSearchParams(location.search);
+  const partnerReturn = params.get('partner_return') === '1';
+  const partnerRefresh = params.get('partner_refresh') === '1';
   const returnedSession = params.get('session_id');
   let sessionCreated = false;
   let currentPayment = null;
   let pendingCheckout = null;
   let pendingRefund = null;
+  let pendingOnboarding = null;
   let enabled = false;
+  let partnerAccount = null;
+  let partnerConfigured = false;
+  let expressAvailable = false;
+  let sessionExpired = false;
 
   const setStatus = (message) => { if (status) status.textContent = message; };
   const pending = (value) => value == null ? 'Pendiente' : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value / 100);
@@ -36,13 +44,141 @@ if (host) {
   const safeError = () => 'No se pudo completar la operación con Stripe. Comprueba el sandbox e inténtalo de nuevo.';
   const api = async (url, options = {}) => {
     const response = await fetch(url, { credentials: 'same-origin', ...options });
-    if (!response.ok) throw new Error('api');
+    if (!response.ok) {
+      const error = new Error('api');
+      error.status = response.status;
+      throw error;
+    }
     return response.json();
   };
   const post = (url, payload) => api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   const checkoutId = () => returnedSession && /^cs_test_[A-Za-z0-9_]+$/.test(returnedSession) ? returnedSession : null;
   const amountInput = () => body.querySelector('[data-amount]');
   const percentInput = () => body.querySelector('[data-percent]');
+  const ensureSession = async () => {
+    if (!sessionCreated) {
+      await post('/api/session', {});
+      sessionCreated = true;
+    }
+  };
+  const hostedOnboarding = (href) => {
+    const url = new URL(href);
+    return url.protocol === 'https:' && (url.hostname === 'connect.stripe.com' || url.hostname.endsWith('.connect.stripe.com'));
+  };
+  const stateLabel = (value) => ({
+    ready: 'Lista para cobros',
+    incomplete: 'Alta incompleta',
+    restricted: 'Cuenta restringida',
+    pending: 'Pendiente en Stripe',
+  }[value] || 'Sin cuenta Express');
+  const yesNo = (value) => value ? 'Activas' : 'No activas';
+  const openPartners = () => document.querySelector('#tab-partners')?.click();
+
+  const recipientCopy = () => {
+    if (partnerAccount) {
+      if (partnerAccount.transfers_active) return `Destino del cobro: tu cuenta Express ${partnerAccount.id} (transfers activo).`;
+      return `Checkout bloqueado: la cuenta Express ${partnerAccount.id} aún no tiene transfers activo. Continúa el alta.`;
+    }
+    if (partnerConfigured) return 'Destino del cobro: cuenta Custom de prueba del sandbox, hasta que actives Express en Partners.';
+    return 'Checkout bloqueado: activa cobros con Stripe en Partners.';
+  };
+
+  const syncCheckout = () => {
+    const checkout = body?.querySelector('[data-checkout]');
+    const recipient = document.querySelector('[data-checkout-recipient]');
+    if (recipient) recipient.textContent = recipientCopy();
+    if (!checkout || !enabled) return;
+    const returned = Boolean(checkoutId());
+    const destinationReady = partnerAccount ? partnerAccount.transfers_active === true : partnerConfigured;
+    checkout.disabled = returned || !destinationReady;
+    amountInput().disabled = returned;
+    percentInput().disabled = returned;
+  };
+
+  const renderExpress = () => {
+    if (!expressRoot) return;
+    const statusEl = expressRoot.querySelector('[data-express-status]');
+    const details = expressRoot.querySelector('[data-express-details]');
+    const activate = expressRoot.querySelector('[data-express-activate]');
+    const resume = expressRoot.querySelector('[data-express-continue]');
+    const set = (name, value) => { const node = expressRoot.querySelector(`[data-express-${name}]`); if (node) node.textContent = value; };
+    if (!expressAvailable) {
+      if (statusEl) statusEl.textContent = 'El alta Express está pendiente de configuración.';
+      if (activate) activate.disabled = true;
+      if (resume) resume.hidden = true;
+      if (details) details.hidden = true;
+      return;
+    }
+    if (sessionExpired) {
+      if (statusEl) statusEl.textContent = 'La sesión de demo caducó. Recarga la página para empezar otra.';
+      if (activate) activate.disabled = true;
+      if (resume) resume.hidden = true;
+      if (details) details.hidden = true;
+      return;
+    }
+    if (!partnerAccount) {
+      if (statusEl) statusEl.textContent = 'Aún no hay cuenta Express en esta sesión. Stripe recogerá los datos TEST.';
+      if (details) details.hidden = true;
+      if (activate) { activate.hidden = false; activate.disabled = false; }
+      if (resume) resume.hidden = true;
+      return;
+    }
+    if (statusEl) statusEl.textContent = partnerAccount.transfers_active
+      ? 'Cuenta lista para recibir transferencias de prueba. Los payouts bancarios son independientes y no se prueban aquí.'
+      : 'Alta empezada. Vuelve a Stripe si el enlace caducó o faltan requisitos.';
+    if (details) details.hidden = false;
+    set('id', partnerAccount.id || 'Pendiente');
+    set('state', stateLabel(partnerAccount.status));
+    set('transfers', yesNo(partnerAccount.transfers_active));
+    set('payouts', partnerAccount.payouts_enabled ? 'Habilitados' : 'No habilitados');
+    set('requirements', String(partnerAccount.requirements_due ?? 0));
+    if (activate) activate.hidden = true;
+    if (resume) {
+      resume.hidden = partnerAccount.transfers_active === true;
+      resume.disabled = false;
+    }
+  };
+
+  const loadPartner = async () => {
+    try {
+      await ensureSession();
+      const data = await api('/api/partner');
+      partnerAccount = data.account || null;
+      sessionExpired = false;
+    } catch (error) {
+      if (error.status === 403) {
+        sessionExpired = true;
+        partnerAccount = null;
+      } else throw error;
+    }
+    renderExpress();
+    syncCheckout();
+  };
+
+  const startOnboarding = async () => {
+    const activate = expressRoot?.querySelector('[data-express-activate]');
+    const resume = expressRoot?.querySelector('[data-express-continue]');
+    const statusEl = expressRoot?.querySelector('[data-express-status]');
+    if (activate) activate.disabled = true;
+    if (resume) resume.disabled = true;
+    try {
+      await ensureSession();
+      if (!pendingOnboarding) pendingOnboarding = { key: uuid() };
+      const created = await post('/api/partner/onboarding', {});
+      partnerAccount = created.account || partnerAccount;
+      renderExpress();
+      syncCheckout();
+      if (!hostedOnboarding(created.url)) throw new Error('url');
+      location.assign(created.url);
+    } catch (error) {
+      const message = error.status === 403
+        ? 'La sesión de demo caducó. Recarga la página para empezar otra.'
+        : safeError();
+      if (statusEl) statusEl.textContent = message;
+      if (activate) activate.disabled = false;
+      if (resume) resume.disabled = false;
+    }
+  };
 
   const updatePreview = () => {
     if (currentPayment) return;
@@ -140,19 +276,20 @@ if (host) {
   const enable = () => {
     if (enabled || !body) return;
     enabled = true;
-    if (description) description.textContent = 'Sandbox TEST con partner configurado. Cuenta Custom de prueba; el alta Express no está incluida.';
+    if (description) description.textContent = 'Sandbox TEST. Destino Express de esta sesión si existe; si no, cuenta Custom de prueba.';
     const checkout = body.querySelector('[data-checkout]');
     const refund = body.querySelector('[data-refund]');
     const refreshButton = body.querySelector('[data-refresh]');
     const newCheckout = body.querySelector('[data-new-checkout]');
     refund.disabled = true;
-    checkout.disabled = Boolean(checkoutId());
     refreshButton.hidden = !checkoutId();
     newCheckout.hidden = !checkoutId();
-    amountInput().disabled = Boolean(checkoutId());
-    percentInput().disabled = Boolean(checkoutId());
     refreshButton.addEventListener('click', refresh);
     checkout.addEventListener('click', async () => {
+      if (partnerAccount && !partnerAccount.transfers_active) {
+        setStatus('Checkout bloqueado hasta que transfers esté activo en tu cuenta Express.');
+        return;
+      }
       const euros = Number(amountInput().value);
       const percent = Number(percentInput().value);
       const amountCents = Math.round(euros * 100);
@@ -160,7 +297,7 @@ if (host) {
       checkout.disabled = true;
       checkout.setAttribute('aria-busy', 'true');
       try {
-        if (!sessionCreated) { await post('/api/session', {}); sessionCreated = true; }
+        await ensureSession();
         const input = { amount_cents: amountCents, fee_percent: percent };
         const fingerprint = JSON.stringify(input);
         if (pendingCheckout?.fingerprint !== fingerprint) pendingCheckout = { fingerprint, key: uuid() };
@@ -168,7 +305,10 @@ if (host) {
         const url = new URL(created.url);
         if (url.protocol !== 'https:' || url.hostname !== 'checkout.stripe.com') throw new Error('url');
         location.assign(url.href);
-      } catch (_) { setStatus(safeError()); checkout.disabled = false; }
+      } catch (error) {
+        setStatus(error.status === 409 ? 'Checkout bloqueado: continúa el alta Express en Partners.' : safeError());
+        syncCheckout();
+      }
       finally { checkout.removeAttribute('aria-busy'); }
     });
     refund.addEventListener('click', async () => {
@@ -186,19 +326,34 @@ if (host) {
       } catch (_) { setStatus(safeError()); }
       finally { refund.disabled = !currentPayment || currentPayment.status !== 'succeeded' || currentPayment.refunded_cents >= currentPayment.amount_cents; }
     });
+    syncCheckout();
     if (checkoutId()) refresh();
     if (params.get('cancelled') === '1') setStatus('Checkout cancelado; no se ha realizado ningún cobro.');
+  };
+
+  const bindExpress = () => {
+    if (!expressRoot || expressRoot.dataset.bound) return;
+    expressRoot.dataset.bound = 'true';
+    expressRoot.querySelector('[data-express-activate]')?.addEventListener('click', startOnboarding);
+    expressRoot.querySelector('[data-express-continue]')?.addEventListener('click', startOnboarding);
   };
 
   amountInput()?.addEventListener('input', updatePreview);
   percentInput()?.addEventListener('input', updatePreview);
   updatePreview();
 
+  if (partnerReturn || partnerRefresh) openPartners();
+
   if (location.protocol !== 'file:') {
     setStatus('Comprobando el entorno de pruebas…');
-    api('/api/config').then((config) => {
+    api('/api/config').then(async (config) => {
       const testOnly = config.test_only !== false;
-      if (config.configured && config.partner_configured && testOnly) {
+      partnerConfigured = config.partner_configured === true;
+      expressAvailable = config.express_available === true && testOnly;
+      const paymentsReady = config.configured && testOnly && (partnerConfigured || expressAvailable);
+      bindExpress();
+      renderExpress();
+      if (paymentsReady) {
         const badge = document.querySelector('.badge');
         const scope = document.querySelector('.scope');
         if (badge) badge.textContent = 'Sandbox';
@@ -208,6 +363,28 @@ if (host) {
       } else {
         setStatus('El sandbox no está disponible en este entorno. Puedes usar la simulación local.');
         body.querySelector('[data-checkout]').disabled = true;
+      }
+      if (expressAvailable) {
+        try {
+          if (partnerRefresh) {
+            openPartners();
+            await startOnboarding();
+            return;
+          }
+          await loadPartner();
+          if (partnerReturn) openPartners();
+        } catch (_) {
+          const statusEl = expressRoot?.querySelector('[data-express-status]');
+          if (statusEl) statusEl.textContent = safeError();
+        }
+      } else {
+        syncCheckout();
+      }
+      if (partnerReturn || partnerRefresh) {
+        const clean = new URL(location.href);
+        clean.searchParams.delete('partner_return');
+        clean.searchParams.delete('partner_refresh');
+        history.replaceState({}, '', `${clean.pathname}${clean.search}${clean.hash}`);
       }
     }).catch(() => setStatus('El sandbox no está disponible en este entorno.'));
   }

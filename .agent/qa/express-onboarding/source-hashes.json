@@ -1,0 +1,7 @@
+{
+  "demos/partner-payments-stripe/api/index.py": "b37550a02d41971345a4c920950a25bef8e1079bd1136a8c7fd54e665d9cef35",
+  "demos/partner-payments-stripe/api/services.py": "66cfd4fe2bc0c8ceb05160b0087517c157250b4725197ef9cc490d22ec427f9b",
+  "demos/partner-payments/index.html": "1b9668aaebd805770d3834c040a81a2a9c2da20f2061388456c0381fcf7171e3",
+  "demos/partner-payments/stripe-ui.mjs": "8231046ee9ffb180afd8a4ab9a6552e709c74e66da64968fcb9be57b12a7b682",
+  "demos/partner-payments/styles.css": "9f5115c729f3861ab45526ceefa19b267a9e383a57c40c0ae087237944cc6dc9"
+}

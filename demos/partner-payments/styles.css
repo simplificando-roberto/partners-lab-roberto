@@ -481,6 +481,45 @@ button svg { width: 16px; height: 16px; }
 }
 .ledger li span { color: var(--muted); }
 
+.recipient-line {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  background: oklch(97.8% .008 250);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  font-size: 13px;
+}
+.express-note { margin: 8px 0 12px; color: var(--muted); font-size: 13.5px; max-width: 62ch; }
+[data-express-status]:not(:empty) {
+  margin: 0 0 12px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: oklch(96.5% .015 250);
+  border: 1px solid var(--line);
+  font-size: 13px;
+}
+.express-status {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  gap: 10px;
+  margin: 0 0 14px;
+}
+.express-status div {
+  margin: 0;
+  padding: 10px 12px;
+  background: oklch(97.8% .008 250);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+}
+.express-status dt {
+  color: var(--muted);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: .04em;
+  text-transform: uppercase;
+}
+.express-status dd { margin: 4px 0 0; font-weight: 650; overflow-wrap: anywhere; }
+.express-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 12px; }
 .partner-rows > div {
   display: grid;
   grid-template-columns: 1fr 2fr auto auto;

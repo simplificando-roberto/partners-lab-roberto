@@ -65,9 +65,10 @@ try {
   }
 }
 
-async function attachRoutes(page, { config, payment, checkoutFail = false, checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_test_owned' } = {}) {
-  const cfg = config ?? { configured: true, test_only: true, partner_configured: true, partner_ready: null, partner_checked: false, currency: 'eur' };
+async function attachRoutes(page, { config, payment, checkoutFail = false, checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_test_owned', partner = null } = {}) {
+  const cfg = config ?? { configured: true, test_only: true, partner_configured: true, partner_ready: null, partner_checked: false, express_available: true, currency: 'eur' };
   await page.route('https://checkout.stripe.com/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<html><body>checkout</body></html>' }));
+  await page.route('https://connect.stripe.com/**', (route) => route.fulfill({ status: 200, contentType: 'text/html', body: '<html><body>onboarding</body></html>' }));
   await page.route('https://candidate.invalid/**', async (route) => {
     const url = new URL(route.request().url());
     const method = route.request().method();
@@ -76,6 +77,12 @@ async function attachRoutes(page, { config, payment, checkoutFail = false, check
     }
     if (url.pathname === '/api/session' && method === 'POST') {
       return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ expires_at: '2030-01-01T00:00:00Z' }) });
+    }
+    if (url.pathname === '/api/partner' && method === 'GET') {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ account: partner }) });
+    }
+    if (url.pathname === '/api/partner/onboarding' && method === 'POST') {
+      return route.fulfill({ status: 200, contentType: 'application/json', body: JSON.stringify({ url: 'https://connect.stripe.com/setup/s/test', account: partner }) });
     }
     if (url.pathname === '/api/checkout' && method === 'POST') {
       if (checkoutFail) return route.fulfill({ status: 502, contentType: 'application/json', body: JSON.stringify({ detail: 'fail' }) });

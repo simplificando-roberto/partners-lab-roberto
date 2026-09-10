@@ -1,0 +1,57 @@
+{
+  "run_id": "express-onboarding",
+  "policy": "exhaustive-qa",
+  "depth": "exhaustive",
+  "base": "78dae064fcc273759bd10fa7037b4e444d4e0d4d",
+  "environment": "local real Chromium + Stripe TEST API; public Vercel pending verify",
+  "verdict": "BLOCKED",
+  "checks": [
+    {
+      "id": "backend",
+      "result": "PASS",
+      "actual": "30 pytest tests passed; gate replay target verified by coordinator"
+    },
+    {
+      "id": "frontend",
+      "result": "PASS",
+      "actual": "12 Node tests including real Chromium; actual mocked browser states and responsive screenshots"
+    },
+    {
+      "id": "security",
+      "result": "PASS",
+      "actual": "Independent Grok4.6 static review terminal accepted, session ownership/CSRF/livekey/idempotency/destination/webhooks"
+    },
+    {
+      "id": "stripe-real",
+      "result": "BLOCKED",
+      "actual": "Stripe PermissionError on account creation/retrieval with claimable rkcs_test_ key; no real Express onboarding or Express payment claimed"
+    },
+    {
+      "id": "public-browser",
+      "result": "BLOCKED",
+      "actual": "Vercel Security Checkpoint code29, x-vercel-mitigated=challenge for automation; attack mode off; no bypass or protection change"
+    }
+  ],
+  "findings": [
+    {
+      "id": "claimable-key",
+      "owner": "Roberto (API key in Vercel), coordinator (verify/deploy)",
+      "status": "required input pending; Express disabled safely"
+    },
+    {
+      "id": "test-fixtures",
+      "status": "fixed duplicate fake-account assertion and case-sensitive copy match"
+    },
+    {
+      "id": "session-expiry-ui",
+      "status": "fixed explicit expiry state"
+    }
+  ],
+  "exclusions": [
+    "Live money",
+    "bank payouts",
+    "production multi-tenant authentication/persistence",
+    "real Express completion pending key"
+  ],
+  "finished_at": "2026-09-10T17:15:18.410497+00:00"
+}

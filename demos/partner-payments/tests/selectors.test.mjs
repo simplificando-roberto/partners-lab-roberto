@@ -12,7 +12,7 @@ const app = readFileSync(join(root, 'app.mjs'), 'utf8');
 test('el HTML conserva los selectores de la simulación y de Stripe', () => {
   const ids = ['partner', 'amount', 'fee', 'formError', 'simulate', 'reject', 'blocker', 'totalLabel', 'total', 'platformLabel', 'platform', 'commission', 'partnerLabel', 'partnerBalance', 'balanceNote', 'paymentState', 'payload', 'copyPayload', 'refundAmount', 'refund', 'refundAll', 'refundRepeat', 'events', 'repeat', 'download', 'reset', 'surState', 'onboard', 'live', 'contact', 'payments', 'partners', 'launch', 'tab-payments', 'tab-partners', 'tab-launch', 'localSimulation', 'stripeSandbox'];
   for (const id of ids) assert.match(html, new RegExp(`id="${id}"`));
-  const attrs = ['data-amount', 'data-percent', 'data-checkout', 'data-refresh', 'data-new-checkout', 'data-stripe-result', 'data-stripe-refund-panel', 'data-refund-amount', 'data-refund', 'data-stripe-body', 'data-stripe-description', 'data-stripe-status'];
+  const attrs = ['data-amount', 'data-percent', 'data-checkout', 'data-refresh', 'data-new-checkout', 'data-stripe-result', 'data-stripe-refund-panel', 'data-refund-amount', 'data-refund', 'data-stripe-body', 'data-stripe-description', 'data-stripe-status', 'data-checkout-recipient', 'data-express-root', 'data-express-activate', 'data-express-continue', 'data-express-status'];
   for (const attr of attrs) assert.match(html, new RegExp(attr));
   assert.match(html, /class="badge"/);
   assert.match(html, /class="scope/);
@@ -34,6 +34,12 @@ test('Stripe UI conserva sesión, idempotencia, allowlist y DTO', () => {
   assert.match(stripe, /\/api\/checkout/);
   assert.match(stripe, /\/api\/refund/);
   assert.match(stripe, /\/api\/payment/);
+  assert.match(stripe, /\/api\/partner/);
+  assert.match(stripe, /\/api\/partner\/onboarding/);
+  assert.match(stripe, /connect\.stripe\.com/);
+  assert.match(html, /data-express-activate/);
+  assert.match(html, /SMS 000000/);
+  assert.match(stripe, /El alta Express está pendiente de configuración\./);
   assert.match(stripe, /crypto\.randomUUID/);
   assert.match(stripe, /checkout\.stripe\.com/);
   assert.match(stripe, /idempotency_key/);

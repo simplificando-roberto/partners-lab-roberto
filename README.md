@@ -7,6 +7,7 @@ Demo de Roberto para explorar cobros de un SaaS B2B y reparto a partners con Str
 ## Qué puedes probar
 
 - Un cobro en Checkout de Stripe sandbox, con comisión de plataforma y transferencia a una cuenta conectada de prueba.
+- Alta Express TEST desde Partners (Account Link alojado por Stripe; SMS 000000). El destino de Checkout es esa cuenta cuando transfers está activo.
 - Consultar el reparto y devolver parcial o totalmente un pago de tu sesión.
 - Un simulador independiente para explorar rechazos, altas ficticias y eventos repetidos.
 - El trabajo propuesto para lanzar el producto: acceso, facturación recurrente, emails, despliegue y seguimiento.
@@ -45,10 +46,16 @@ cd .build
 npx vercel dev
 ```
 
-Para conectar tu propio sandbox, configura en Vercel o en `.build/.env.local` las variables descritas en `.env.example`. Usa una cuenta Connect TEST con `transfers` activa. Configura el webhook `/api/webhook` para `checkout.session.completed`, `payment_intent.succeeded` y `charge.refunded`. Ajusta APP_URL al origen público o local exacto. Para publicar tu copia, ejecuta `npx vercel --prod` desde `.build`.
+Para conectar tu propio sandbox, configura en Vercel o en `.build/.env.local` las variables descritas en `.env.example`. Usa una cuenta Connect TEST con `transfers` activa. Configura el webhook de plataforma `/api/webhook` para `checkout.session.completed`, `payment_intent.succeeded` y `charge.refunded`. Configura un endpoint Connect distinto, con `STRIPE_CONNECT_WEBHOOK_SECRET`, para `account.updated`. Ajusta APP_URL al origen público o local exacto. Para publicar tu copia, ejecuta `npx vercel --prod` desde `.build`.
 
 La configuración publicada y sus credenciales pertenecen a la demo de Roberto y no se incluyen en este repositorio. Sin configuración, la interfaz conserva el simulador y no habilita Checkout.
 
 ## Límites
 
-La integración comprobada usa una cuenta Custom de prueba. No prueba onboarding Express, payouts bancarios ni operación en producción. Stripe es la fuente de verdad financiera de esta demo; aún no existe un ledger de negocio persistente, identidad por tenant ni reconciliación productiva. Billing recurrente y las demás capacidades de lanzamiento son trabajo propuesto. Este código permite revisar el recorrido y la integración, no desplegar un marketplace productivo sin ese trabajo adicional.
+El alta Express está implementada en este repo y cubierta por pruebas con Stripe simulado (pytest y Chromium). La cuenta Custom de prueba sigue siendo el destino de Checkout solo si la sesión no tiene cuenta Express. No hay fallback silencioso. La validación live de Express no está completa: la clave claimable `rkcs_test_` del sandbox no puede crear ni leer cuentas Connect; hasta sustituirla en Vercel por `sk_test_` o `rk_test_` con permisos, el alta se muestra pendiente y no llama a Stripe. No se prueban payouts bancarios. El secreto Connect y la publicación son del parent. Stripe es la fuente de verdad financiera; aún no existe un ledger de negocio persistente, identidad por tenant ni reconciliación productiva. Billing recurrente y las demás capacidades de lanzamiento son trabajo propuesto. Este código permite revisar el recorrido y la integración, no desplegar un marketplace productivo sin ese trabajo adicional.
+
+Contratos, selectores y evidencia de pruebas: `docs/express/implementation.md`.
+
+### Activar Express en esta demo
+
+Configura `STRIPE_SECRET_KEY` en Vercel (Production) con una clave TEST que permita crear/consultar cuentas Connect y generar Account Links, y vuelve a desplegar. Las claves iniciales `rkcs_test_` dejan el alta Express deshabilitada. No compartas claves en issues ni en el código. [Estado de QA y evidencias](.agent/qa/express-onboarding/report.md).
