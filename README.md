@@ -1,30 +1,31 @@
 # Partners Lab
 
-Demo de Roberto para explorar cobros de un SaaS B2B y reparto a partners con Stripe Connect Destination Charges.
+Demo pública de Roberto para probar cobros de un SaaS B2B y reparto a partners con Stripe Connect Destination Charges.
 
-**Demo:** https://partners-lab-roberto.vercel.app
+**Abrir la demo:** https://partners-lab-roberto.vercel.app
 
-## Qué puedes probar
+Todo ocurre en Stripe TEST. No se mueve dinero real.
 
-- Un cobro en Checkout de Stripe sandbox, con comisión de plataforma y transferencia a una cuenta conectada de prueba.
-- Alta Express TEST desde Partners (Account Link alojado por Stripe; SMS 000000). El destino de Checkout es esa cuenta cuando transfers está activo.
-- Consultar el reparto y devolver parcial o totalmente un pago de tu sesión.
-- Un simulador independiente para explorar rechazos, altas ficticias y eventos repetidos.
-- **Reiniciar demo** (cabecera): borra la sesión de este navegador, la asociación Express y la simulación local. No elimina cuentas ni pagos en Stripe ni lanza reembolsos.
-- El trabajo propuesto para lanzar el producto: acceso, facturación recurrente, emails, despliegue y seguimiento.
+## Para quien llega a la demo
 
-No se mueve dinero real. Usa únicamente los datos de prueba que indica la interfaz. El cobro se introduce en Checkout de Stripe, nunca en esta aplicación.
+Hay dos recorridos:
 
-## Diseño
+- **Probar con el partner de ejemplo.** Abre Cobros, acepta el importe y la comisión mostrados y pulsa `Probar pago con Stripe`. Checkout se abre en Stripe. Usa la tarjeta de prueba `4242 4242 4242 4242`, una fecha futura y CVC `123`.
+- **Dar de alta tu propio partner de prueba.** En Partners pulsa el alta Express y completa el formulario alojado por Stripe con datos TEST. Al volver, la demo consulta el estado de la cuenta. El regreso por sí solo no confirma que esté lista: Checkout solo se habilita cuando `transfers` aparece activo.
 
-Referencia creada con Imagegen (modo builtin) e implementada con Grok 4.6: [imagen](docs/design/stripe-reference-v2.png) y [prompt](docs/design/imagegen-prompt-v2.txt). La interfaz usa HTML/CSS nativos y conserva la integración sandbox. [QA y capturas de la versión publicada](.agent/qa/redesign-v2/report.md).
+La guía paso a paso está en [docs/demo-guide.md](docs/demo-guide.md). Explica el reparto bruto, la comisión, el coste de Stripe, el neto y lo que ocurre al devolver un pago.
+
+El botón `Reiniciar demo` crea una sesión de navegador nueva, elimina la asociación Express de esa sesión y borra la simulación local. No elimina cuentas ni pagos de Stripe ni hace reembolsos. Si quieres devolver un pago, hazlo antes de reiniciar.
 
 ## Código
 
-- `demos/partner-payments/`: HTML, CSS y JavaScript; sin framework de frontend.
+- `demos/partner-payments/`: HTML, CSS y JavaScript del frontend, sin framework.
 - `demos/partner-payments-stripe/`: FastAPI y SDK Python de Stripe.
-- `demos/partner-payments/DEPLOYMENT.md`: alcance y evidencia del sandbox.
-- `.agent/qa/`: informe de QA y evidencias visuales de esta revisión.
+- `docs/demo-guide.md`: recorrido público, estados y límites.
+- `docs/express/implementation.md`: contrato técnico del alta Express.
+- `docs/reset-demo.md`: comportamiento del reinicio de sesión.
+
+La pestaña `Lanzamiento` describe servicios que propondríamos alrededor del producto, como acceso, billing recurrente, emails, operaciones y seguimiento. No son integraciones terminadas de esta demo.
 
 ## Ejecutar las pruebas
 
@@ -39,7 +40,7 @@ node --test demos/partner-payments/tests/*.test.mjs
 .venv/bin/python -m pytest -q demos/partner-payments-stripe/tests
 ```
 
-## Ejecutar o desplegar
+## Ejecutar una copia local o preparar una publicación
 
 ```bash
 python3 scripts/prepare_release.py
@@ -47,16 +48,14 @@ cd .build
 npx vercel dev
 ```
 
-Para conectar tu propio sandbox, configura en Vercel o en `.build/.env.local` las variables descritas en `.env.example`. Usa una cuenta Connect TEST con `transfers` activa. Configura el webhook de plataforma `/api/webhook` para `checkout.session.completed`, `payment_intent.succeeded` y `charge.refunded`. Configura un endpoint Connect distinto, con `STRIPE_CONNECT_WEBHOOK_SECRET`, para `account.updated`. Ajusta APP_URL al origen público o local exacto. Para publicar tu copia, ejecuta `npx vercel --prod` desde `.build`.
+Para conectar una copia a tu propio sandbox, configura en Vercel o en `.build/.env.local` las variables de `.env.example`. Usa una clave TEST con permisos para crear y consultar cuentas Connect, un partner Custom TEST con `transfers` activo, `APP_URL` con el origen exacto y un `DEMO_SESSION_SECRET` aleatorio de al menos 32 caracteres. Configura el webhook de plataforma `/api/webhook` para `checkout.session.completed`, `payment_intent.succeeded` y `charge.refunded`, y un endpoint Connect separado para `account.updated` con `STRIPE_CONNECT_WEBHOOK_SECRET`. Para publicar tu copia, ejecuta `npx vercel --prod` desde `.build`.
 
-La configuración publicada y sus credenciales pertenecen a la demo de Roberto y no se incluyen en este repositorio. Sin configuración, la interfaz conserva el simulador y no habilita Checkout.
+Las credenciales de la demo publicada no están en este repositorio. Sin configuración, la interfaz conserva la simulación local y deja Checkout deshabilitado. No compartas claves en issues ni en el código.
 
-## Límites
+## Alcance y límites
 
-El alta Express está implementada en este repo y cubierta por pruebas con Stripe simulado (pytest y Chromium). La cuenta Custom de prueba sigue siendo el destino de Checkout solo si la sesión no tiene cuenta Express. No hay fallback silencioso. La validación live de Express no está completa: la clave claimable `rkcs_test_` del sandbox no puede crear ni leer cuentas Connect; hasta sustituirla en Vercel por `sk_test_` o `rk_test_` con permisos, el alta se muestra pendiente y no llama a Stripe. No se prueban payouts bancarios. El secreto Connect y la publicación son del parent. Stripe es la fuente de verdad financiera; aún no existe un ledger de negocio persistente, identidad por tenant ni reconciliación productiva. Billing recurrente y las demás capacidades de lanzamiento son trabajo propuesto. Este código permite revisar el recorrido y la integración, no desplegar un marketplace productivo sin ese trabajo adicional.
+La integración usa Checkout TEST, Destination Charges, comisión de aplicación, devoluciones con reversión de transferencia y alta Express alojada por Stripe. La cuenta Express queda asociada a una sesión firmada de navegador durante una hora y no se reutiliza desde otra sesión. Stripe es la fuente de verdad de los importes y estados.
 
-Contratos, selectores y evidencia de pruebas: `docs/express/implementation.md`.
+La demo no tiene login, identidad por tenant, ledger de negocio persistente ni reconciliación productiva. No prueba payouts bancarios ni procesa dinero real. Las comisiones de Stripe dependen de la operación y pueden quedar pendientes o no devolverse. El simulador local es independiente y solo sirve para explorar estados; no crea objetos en Stripe.
 
-### Configurar una copia de esta demo
-
-Para tu propia copia, configura `STRIPE_SECRET_KEY` en Vercel (Production) con una clave TEST que permita crear/consultar cuentas Connect y generar Account Links, y vuelve a desplegar. Las claves iniciales `rkcs_test_` dejan el alta Express deshabilitada. No compartas claves en issues ni en el código. [Estado de QA y evidencias](.agent/qa/express-onboarding/report.md).
+La interfaz conserva el diseño estilo Stripe y la integración sandbox. La referencia visual está en [docs/design/stripe-reference-v2.png](docs/design/stripe-reference-v2.png), con su [prompt](docs/design/imagegen-prompt-v2.txt). La evidencia de pruebas y contratos internos está enlazada desde la documentación técnica.
