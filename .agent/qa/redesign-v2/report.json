@@ -1,0 +1,81 @@
+{
+  "run_id": "redesign-v2",
+  "policy_version": "exhaustive-qa-2026-09-10",
+  "selected_depth": "exhaustive",
+  "signals": [
+    "payment UI",
+    "responsive redesign",
+    "deployment"
+  ],
+  "override": null,
+  "repository": "https://github.com/simplificando-roberto/partners-lab-roberto",
+  "base": "b460a7952d03be66c2d35f3508cd5f54c103735f",
+  "deployed_sha": "ca02fefbed76485d51619d9a131e9753459ac215",
+  "environment": "Vercel production alias, Stripe TEST only",
+  "url": "https://partners-lab-roberto.vercel.app",
+  "finished_at": "2026-09-10T13:46:05.481241+00:00",
+  "tools": [
+    "Imagegen builtin",
+    "Grok4.6-build",
+    "Playwright Chromium",
+    "Node test",
+    "pytest",
+    "Vercel CLI"
+  ],
+  "checks": [
+    {
+      "id": "backend",
+      "status": "PASS",
+      "actual": "19 passed; backend and ledger unchanged"
+    },
+    {
+      "id": "node",
+      "status": "PASS",
+      "actual": "11 passed, 0 skipped; final CSS browser rerun 1 passed"
+    },
+    {
+      "id": "independent-review",
+      "status": "PASS",
+      "actual": "Grok4.6 terminal completed; parent adjudication in report"
+    },
+    {
+      "id": "hosted-payment",
+      "status": "PASS",
+      "actual": "100 EUR payment; 30 EUR partial and 70 EUR remaining refund; partner final 0; executed afcaa13 (identical financial handler to final)"
+    },
+    {
+      "id": "hosted-final",
+      "status": "PASS",
+      "actual": "6 screenshots 390/768/1440; no overflow/JS errors; full-refund readback; stranger 403; hover transparent"
+    },
+    {
+      "id": "release-identity",
+      "status": "PASS",
+      "actual": "ca02fefbed76485d51619d9a131e9753459ac215 and five static files byte-match"
+    }
+  ],
+  "findings": [
+    {
+      "id": "hover-contrast",
+      "severity": "P2",
+      "owner": "Grok implementation",
+      "status": "fixed and live verified"
+    },
+    {
+      "id": "copy-financial-summary",
+      "severity": "P2",
+      "owner": "Grok implementation",
+      "status": "fixed and visually verified"
+    }
+  ],
+  "untested": [
+    "live money",
+    "Express onboarding",
+    "bank payouts",
+    "recurring billing",
+    "production tenant ledger"
+  ],
+  "open_decisions": [],
+  "accepted_risks": [],
+  "verdict": "PASS"
+}

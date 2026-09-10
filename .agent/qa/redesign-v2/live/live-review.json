@@ -1,0 +1,54 @@
+{
+  "results": [
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "initial",
+      "overflow": 0
+    },
+    {
+      "viewport": {
+        "width": 1440,
+        "height": 1000
+      },
+      "state": "refunded",
+      "overflow": 0
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "state": "initial",
+      "overflow": 0
+    },
+    {
+      "viewport": {
+        "width": 768,
+        "height": 1024
+      },
+      "state": "refunded",
+      "overflow": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "initial",
+      "overflow": 0
+    },
+    {
+      "viewport": {
+        "width": 390,
+        "height": 844
+      },
+      "state": "refunded",
+      "overflow": 0
+    }
+  ],
+  "javascriptErrors": [],
+  "unauthorized": 403
+}

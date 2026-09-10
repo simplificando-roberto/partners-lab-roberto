@@ -1,0 +1,56 @@
+{
+  "results": {
+    "paid": {
+      "checkout_session_id": "cs_test_a1ey4SoARwHMBbGSiOdciYvHuJFQdsHy1aPTa7k9SYIh3iKSAKxKw1dwfA",
+      "payment_intent_id": "pi_3UE8EsAWy6B5PVpG1HqxEebm",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "succeeded",
+      "refunded_cents": 0,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 0,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 0,
+      "partner_pending_cents": 9000,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": 660,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_1UE8EuAWy6B5PVpGfo88hS2c"
+    },
+    "partial": {
+      "checkout_session_id": "cs_test_a1ey4SoARwHMBbGSiOdciYvHuJFQdsHy1aPTa7k9SYIh3iKSAKxKw1dwfA",
+      "payment_intent_id": "pi_3UE8EsAWy6B5PVpG1HqxEebm",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "succeeded",
+      "refunded_cents": 3000,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 3000,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 300,
+      "partner_pending_cents": 6300,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": 360,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UE8EsAWy6B5PVpG12jE1eLB"
+    },
+    "full": {
+      "checkout_session_id": "cs_test_a1ey4SoARwHMBbGSiOdciYvHuJFQdsHy1aPTa7k9SYIh3iKSAKxKw1dwfA",
+      "payment_intent_id": "pi_3UE8EsAWy6B5PVpG1HqxEebm",
+      "currency": "eur",
+      "amount_cents": 10000,
+      "status": "refunded",
+      "refunded_cents": 10000,
+      "transfer_gross_cents": 10000,
+      "transfer_reversed_cents": 10000,
+      "application_fee_cents": 1000,
+      "application_fee_refunded_cents": 1000,
+      "partner_pending_cents": 0,
+      "stripe_fee_cents": 340,
+      "platform_net_cents": -340,
+      "stripe_balance_status": "pending",
+      "verified_webhook_event_id": "evt_3UE8EsAWy6B5PVpG12jE1eLB"
+    }
+  },
+  "javascriptErrors": []
+}

@@ -1,0 +1,12 @@
+{
+  "commit": "ca02fefbed76485d51619d9a131e9753459ac215",
+  "deployment": "dpl_8oe34ozuWVbfwf7WdiW6D6S496s9",
+  "files": {
+    "index.html": "b8cdca3a9bb2f84f11633bd6986abbb1643583500a371862125d6048958d467c",
+    "styles.css": "628ce92faeef4bcd7ac3af8176d2fb2b4aff29ed1d4957374129f4162957a16b",
+    "app.mjs": "c9482a251cd62be9e94256a5f5625198747a894d7b4f82fbecaef4f5367983d6",
+    "stripe-ui.mjs": "18b46246c16726833a351b4b0ce455d0104512cdecf290698021d4db986efb1e",
+    "ledger.mjs": "37807541422bb797eb013b386a87d602de7225b2fe8c6736d0386f0b3f14c23e"
+  },
+  "test_only": true
+}

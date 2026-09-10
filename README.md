@@ -15,7 +15,7 @@ No se mueve dinero real. Usa únicamente los datos de prueba que indica la inter
 
 ## Diseño
 
-Referencia creada con Imagegen (modo builtin) e implementada con Grok 4.6: [imagen](docs/design/stripe-reference-v2.png) y [prompt](docs/design/imagegen-prompt-v2.txt). La interfaz usa HTML/CSS nativos y conserva la integración sandbox.
+Referencia creada con Imagegen (modo builtin) e implementada con Grok 4.6: [imagen](docs/design/stripe-reference-v2.png) y [prompt](docs/design/imagegen-prompt-v2.txt). La interfaz usa HTML/CSS nativos y conserva la integración sandbox. [QA y capturas de la versión publicada](.agent/qa/redesign-v2/report.md).
 
 ## Código
 
