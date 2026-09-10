@@ -15,4 +15,14 @@ Los agentes no pudieron iniciar Chromium en su sandbox. Esos intentos no cuentan
 
 ## Publicación
 
-Pendiente de registrar SHA y readback de la publicación.
+PASS: https://partners-lab-roberto.vercel.app
+
+- SHA desplegado: `6bd4e4452206db813ad1008a4cfe5fa047452f5b`.
+- Vercel: `dpl_Gbkei4gouM1tYtjrQgDyBj6mCn5e`, READY.
+- Readback: `/release.json` coincide con el SHA; HTML, CSS, app.mjs y stripe-ui.mjs coinciden byte a byte con el código publicado.
+- Configuración pública: configurado, solo TEST, partner de ejemplo y Express disponibles.
+- Smoke público del reinicio: sesión renovada, partner vacío, origen incorrecto rechazado: PASS. No se realizaron operaciones de cobro ni borrado de objetos Stripe.
+- Chromium contra el enlace público: HTTP 200, sin Security Checkpoint, guía y coste visibles. Captura `screenshots/public-desktop-1440.png`.
+- Repositorio confirmado público mediante la API anónima de GitHub.
+
+El cobro/alta/refund de Stripe en esta revisión se cubrió con fixtures; no se repitió una transacción externa completa. El usuario había confirmado el flujo Express en la versión anterior. `deployment-proof.json` conserva readback y hashes sin cookies ni credenciales.

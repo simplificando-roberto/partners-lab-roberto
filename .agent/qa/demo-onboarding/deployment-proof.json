@@ -1,0 +1,26 @@
+{
+  "deployed_sha": "6bd4e4452206db813ad1008a4cfe5fa047452f5b",
+  "deployment_id": "dpl_Gbkei4gouM1tYtjrQgDyBj6mCn5e",
+  "index.html": "9913e7766338ef396ccc81cbab49068b3d0620eafed10b5e5e7252b9092aa347",
+  "styles.css": "8f212ec6fc46be35d10f5a2751e8facd76a4237cda4f29b85bc50bcf70d035b1",
+  "app.mjs": "8aa521e348bac401f33ed92ce7d8e2de9488df5deaacf4f3a61161d470dbf882",
+  "stripe-ui.mjs": "758dcb5decc7b637f274fc43cfc84a42ef79bd077d72108bc2d203c950201b37",
+  "config": {
+    "configured": true,
+    "test_only": true,
+    "partner_configured": true,
+    "express_available": true
+  },
+  "reset_smoke": {
+    "rotates_session": true,
+    "partner_cleared": true,
+    "wrong_origin_rejected": true,
+    "verdict": "PASS"
+  },
+  "public_browser": {
+    "http": 200,
+    "challenged": false,
+    "guide": 1,
+    "cost": 1
+  }
+}
