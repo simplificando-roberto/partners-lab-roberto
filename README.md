@@ -10,6 +10,7 @@ Demo de Roberto para explorar cobros de un SaaS B2B y reparto a partners con Str
 - Alta Express TEST desde Partners (Account Link alojado por Stripe; SMS 000000). El destino de Checkout es esa cuenta cuando transfers está activo.
 - Consultar el reparto y devolver parcial o totalmente un pago de tu sesión.
 - Un simulador independiente para explorar rechazos, altas ficticias y eventos repetidos.
+- **Reiniciar demo** (cabecera): borra la sesión de este navegador, la asociación Express y la simulación local. No elimina cuentas ni pagos en Stripe ni lanza reembolsos.
 - El trabajo propuesto para lanzar el producto: acceso, facturación recurrente, emails, despliegue y seguimiento.
 
 No se mueve dinero real. Usa únicamente los datos de prueba que indica la interfaz. El cobro se introduce en Checkout de Stripe, nunca en esta aplicación.

@@ -1,4 +1,5 @@
 import sys
+import time
 from pathlib import Path
 
 import pytest
@@ -144,6 +145,57 @@ def test_installed_stripe_sdk_exposes_gateway_resources():
     assert callable(gateway.client.payment_intents.retrieve)
     assert callable(gateway.client.payment_intents.update)
     assert callable(gateway.client.refunds.create)
+
+
+def _cookie_token(response):
+    header = response.headers.get("set-cookie", "")
+    assert "partner_demo_session=" in header
+    return header.split("partner_demo_session=", 1)[1].split(";", 1)[0]
+
+
+def _session_payload(token):
+    return index.SessionStore(config().session_secret).read(token)
+
+
+def test_session_reset_issues_new_id_without_partner_and_cookie_flags(client):
+    browser, fake = client
+    origin = {"Origin": "https://demo.example"}
+    token, payload = index.SessionStore(config().session_secret).issue({"id": "owner", "exp": int(time.time()) + 3600, "partner_account_id": "acct_express"})
+    browser.cookies.set("partner_demo_session", token)
+    assert payload["id"] == "owner"
+    assert payload["partner_account_id"] == "acct_express"
+    reset = browser.post("/api/session/reset", json={}, headers=origin)
+    assert reset.status_code == 200
+    header = reset.headers.get("set-cookie", "")
+    assert "httponly" in header.lower()
+    assert "secure" in header.lower()
+    assert "samesite=lax" in header.lower()
+    after = _session_payload(_cookie_token(reset))
+    assert after["id"] != "owner"
+    assert "partner_account_id" not in after
+    assert fake.checkout_params is None
+    assert fake.refund_args is None
+    reuse = browser.post("/api/session", json={}, headers=origin, cookies={"partner_demo_session": _cookie_token(reset)})
+    assert reuse.status_code == 200
+    assert "set-cookie" not in {k.lower() for k in reuse.headers.keys()} or "partner_demo_session=" not in reuse.headers.get("set-cookie", "")
+
+
+def test_session_reset_works_with_expired_cookie_and_rejects_bad_origin(client):
+    browser, fake = client
+    origin = {"Origin": "https://demo.example"}
+    expired = index.SessionStore(config().session_secret).serializer.dumps({"id": "owner", "exp": 1, "partner_account_id": "acct_express"})
+    browser.cookies.set("partner_demo_session", expired)
+    reset = browser.post("/api/session/reset", json={}, headers=origin)
+    assert reset.status_code == 200
+    after = _session_payload(_cookie_token(reset))
+    assert after["id"] != "owner"
+    assert "partner_account_id" not in after
+    wrong = TestClient(index.app).post("/api/session/reset", json={}, headers={"Origin": "https://evil.example"})
+    assert wrong.status_code == 403
+    no_json = TestClient(index.app).post("/api/session/reset", content=b"{}", headers={**origin, "Content-Type": "text/plain"})
+    assert no_json.status_code == 415
+    huge = TestClient(index.app).post("/api/session/reset", content=b"x" * 20000, headers={**origin, "Content-Type": "application/json", "Content-Length": "20000"})
+    assert huge.status_code == 413
 
 
 def test_fully_refunded_payment_has_refunded_display_status():

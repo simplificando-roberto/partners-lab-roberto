@@ -21,6 +21,8 @@ if (host) {
   let partnerConfigured = false;
   let expressAvailable = false;
   let sessionExpired = false;
+  let mutationsInFlight = 0;
+  let resetBusy = false;
 
   const setStatus = (message) => { if (status) status.textContent = message; };
   const pending = (value) => value == null ? 'Pendiente' : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value / 100);
@@ -51,7 +53,14 @@ if (host) {
     }
     return response.json();
   };
-  const post = (url, payload) => api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  const post = (url, payload) => {
+    if (resetBusy && url !== '/api/session/reset') {
+      const error = new Error('reset');
+      error.status = 409;
+      return Promise.reject(error);
+    }
+    return api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+  };
   const checkoutId = () => returnedSession && /^cs_test_[A-Za-z0-9_]+$/.test(returnedSession) ? returnedSession : null;
   const amountInput = () => body.querySelector('[data-amount]');
   const percentInput = () => body.querySelector('[data-percent]');
@@ -159,8 +168,13 @@ if (host) {
     const activate = expressRoot?.querySelector('[data-express-activate]');
     const resume = expressRoot?.querySelector('[data-express-continue]');
     const statusEl = expressRoot?.querySelector('[data-express-status]');
+    if (resetBusy) {
+      if (statusEl) statusEl.textContent = 'Espera a que termine el reinicio de la demo.';
+      return;
+    }
     if (activate) activate.disabled = true;
     if (resume) resume.disabled = true;
+    mutationsInFlight += 1;
     try {
       await ensureSession();
       if (!pendingOnboarding) pendingOnboarding = { key: uuid() };
@@ -177,6 +191,8 @@ if (host) {
       if (statusEl) statusEl.textContent = message;
       if (activate) activate.disabled = false;
       if (resume) resume.disabled = false;
+    } finally {
+      mutationsInFlight = Math.max(0, mutationsInFlight - 1);
     }
   };
 
@@ -286,6 +302,7 @@ if (host) {
     newCheckout.hidden = !checkoutId();
     refreshButton.addEventListener('click', refresh);
     checkout.addEventListener('click', async () => {
+      if (resetBusy) { setStatus('Espera a que termine el reinicio de la demo.'); return; }
       if (partnerAccount && !partnerAccount.transfers_active) {
         setStatus('Checkout bloqueado hasta que transfers esté activo en tu cuenta Express.');
         return;
@@ -296,6 +313,7 @@ if (host) {
       if (!Number.isFinite(euros) || !Number.isSafeInteger(amountCents) || euros < 1 || euros > 500 || !Number.isInteger(percent) || percent < 0 || percent > 30) { setStatus('Revisa el importe y la comisión.'); return; }
       checkout.disabled = true;
       checkout.setAttribute('aria-busy', 'true');
+      mutationsInFlight += 1;
       try {
         await ensureSession();
         const input = { amount_cents: amountCents, fee_percent: percent };
@@ -309,14 +327,19 @@ if (host) {
         setStatus(error.status === 409 ? 'Checkout bloqueado: continúa el alta Express en Partners.' : safeError());
         syncCheckout();
       }
-      finally { checkout.removeAttribute('aria-busy'); }
+      finally {
+        mutationsInFlight = Math.max(0, mutationsInFlight - 1);
+        checkout.removeAttribute('aria-busy');
+      }
     });
     refund.addEventListener('click', async () => {
+      if (resetBusy) { setStatus('Espera a que termine el reinicio de la demo.'); return; }
       const id = checkoutId();
       const cents = Math.round(Number(body.querySelector('[data-refund-amount]').value) * 100);
       const remaining = (currentPayment?.amount_cents || 0) - (currentPayment?.refunded_cents || 0);
       if (!id || !Number.isInteger(cents) || cents < 1 || cents > remaining) { setStatus('Indica un importe pendiente válido para devolver.'); return; }
       refund.disabled = true;
+      mutationsInFlight += 1;
       try {
         const fingerprint = `${id}:${cents}:${currentPayment?.refunded_cents || 0}`;
         if (pendingRefund?.fingerprint !== fingerprint) pendingRefund = { fingerprint, key: uuid() };
@@ -324,7 +347,10 @@ if (host) {
         setStatus('Devolución solicitada a Stripe.');
         await refresh();
       } catch (_) { setStatus(safeError()); }
-      finally { refund.disabled = !currentPayment || currentPayment.status !== 'succeeded' || currentPayment.refunded_cents >= currentPayment.amount_cents; }
+      finally {
+        mutationsInFlight = Math.max(0, mutationsInFlight - 1);
+        refund.disabled = !currentPayment || currentPayment.status !== 'succeeded' || currentPayment.refunded_cents >= currentPayment.amount_cents;
+      }
     });
     syncCheckout();
     if (checkoutId()) refresh();
@@ -387,5 +413,46 @@ if (host) {
         history.replaceState({}, '', `${clean.pathname}${clean.search}${clean.hash}`);
       }
     }).catch(() => setStatus('El sandbox no está disponible en este entorno.'));
+  }
+
+  const resetCopy = 'Se borra la sesión de demo de este navegador, la asociación Express y la simulación local. Stripe conserva las cuentas y los pagos; los reembolsos no son automáticos. Si has pagado, reembolsa antes: al reiniciar perderás el acceso al resultado de esta sesión.';
+  const resetButton = document.querySelector('[data-reset-demo]');
+  const resetStatus = document.querySelector('[data-reset-status]');
+  const showResetStatus = (message) => {
+    if (resetStatus) {
+      resetStatus.hidden = !message;
+      resetStatus.textContent = message || '';
+    }
+    const live = document.querySelector('#live');
+    if (live && message) live.textContent = message;
+    setStatus(message);
+  };
+  if (resetButton && resetButton.dataset.resetBound !== 'true') {
+  resetButton.dataset.resetBound = 'true';
+  resetButton.addEventListener('click', async () => {
+    if (resetBusy) return;
+    if (mutationsInFlight > 0) {
+      showResetStatus('Espera a que termine el cobro, la devolución o el alta Express en curso. Luego puedes reiniciar la demo.');
+      return;
+    }
+    resetBusy = true;
+    if (!window.confirm(resetCopy)) {
+      resetBusy = false;
+      return;
+    }
+    resetButton.disabled = true;
+    try {
+      if (location.protocol === 'file:') {
+        location.reload();
+        return;
+      }
+      await post('/api/session/reset', {});
+      location.replace('/');
+    } catch (_) {
+      showResetStatus('No se pudo reiniciar la demo. El estado se ha conservado; inténtalo de nuevo.');
+      resetBusy = false;
+      resetButton.disabled = false;
+    }
+  });
   }
 }

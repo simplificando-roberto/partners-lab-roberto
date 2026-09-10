@@ -148,6 +148,20 @@ async def create_session(request: Request, response: Response, partner_demo_sess
     return {"expires_at": data["exp"]}
 
 
+@app.post("/api/session/reset")
+async def reset_session(request: Request, response: Response):
+    config = settings()
+    require_json(request, config)
+    await body(request)
+    if not config.session_ready:
+        raise HTTPException(503, "Demo session configuration is unavailable.")
+    # Always mint a fresh demo session with no Express association. Never call Stripe.
+    token, data = SessionStore(config.session_secret).issue()
+    set_session_cookie(response, token, data["exp"])
+    no_store(response)
+    return {"expires_at": data["exp"]}
+
+
 @app.get("/api/partner")
 def partner(response: Response, partner_demo_session: str | None = Cookie(default=None)):
     config = settings()
