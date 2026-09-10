@@ -31,6 +31,8 @@ Requisitos: Node.js 20+ y Python 3.12.
 ```bash
 python3 -m venv .venv
 .venv/bin/pip install -r demos/partner-payments-stripe/requirements.txt pytest httpx
+npm install --no-save playwright
+npx playwright install chromium
 node --test demos/partner-payments/tests/*.test.mjs
 .venv/bin/python -m pytest -q demos/partner-payments-stripe/tests
 ```

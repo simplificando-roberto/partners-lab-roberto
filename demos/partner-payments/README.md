@@ -15,6 +15,8 @@ Frontend estático con módulos ES, servido por HTTP junto al backend de `../par
 ## Comprobación
 
 ```bash
+npm install --no-save playwright
+npx playwright install chromium
 node --test demos/partner-payments/tests/*.test.mjs
 ```
 

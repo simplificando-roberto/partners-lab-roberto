@@ -55,10 +55,14 @@ const pendingDto = {
 
 let chromium;
 try {
-  ({ chromium } = require('/home/roberto/src/autonomous-coding-v2/node_modules/playwright'));
-} catch (error) {
-  chromium = null;
-  console.error('Playwright no está disponible:', error.message);
+  ({ chromium } = require('playwright'));
+} catch {
+  try {
+    ({ chromium } = require('/home/roberto/src/autonomous-coding-v2/node_modules/playwright'));
+  } catch (error) {
+    chromium = null;
+    console.error('Playwright no está disponible:', error.message);
+  }
 }
 
 async function attachRoutes(page, { config, payment, checkoutFail = false, checkoutUrl = 'https://checkout.stripe.com/c/pay/cs_test_owned' } = {}) {

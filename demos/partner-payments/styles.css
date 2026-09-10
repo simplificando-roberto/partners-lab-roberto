@@ -79,6 +79,16 @@ svg { display: block; }
   color: var(--accent);
   border-bottom-color: var(--accent);
 }
+.tabs button:hover:not(:disabled) {
+  background: transparent;
+  border-color: transparent;
+  color: var(--ink);
+}
+.tabs button[aria-selected="true"]:hover:not(:disabled) {
+  color: var(--accent);
+  background: transparent;
+  border-bottom-color: var(--accent);
+}
 .code-link {
   display: inline-flex;
   align-items: center;
@@ -209,7 +219,7 @@ button, .button-link {
   cursor: pointer;
 }
 button svg { width: 16px; height: 16px; }
-button:hover:not(:disabled), .button-link:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
+.primary:hover:not(:disabled), .button-link:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 .primary { width: 100%; }
 .secondary, .button-link.secondary {
   color: var(--ink);
@@ -523,7 +533,11 @@ footer {
   text-decoration: none;
   cursor: pointer;
 }
-.footer-contact:hover, .footer-links a:hover { color: var(--ink); background: none; }
+.footer-contact:hover:not(:disabled), .footer-links a:hover {
+  color: var(--ink);
+  background: none;
+  border-color: transparent;
+}
 
 button:focus-visible, input:focus-visible, select:focus-visible, a:focus-visible, summary:focus-visible {
   outline: 2px solid var(--accent);
