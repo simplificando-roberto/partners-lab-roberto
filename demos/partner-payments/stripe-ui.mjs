@@ -2,30 +2,36 @@
 const host = document.querySelector('#payments');
 
 if (host) {
-  const details = document.createElement('details');
-  details.className = 'inspector';
-  details.id = 'stripeSandbox';
-  details.hidden = true;
-  details.innerHTML = `
-    <summary>Stripe sandbox · cobro de prueba separado</summary>
-    <div class="stripe-sandbox" data-stripe-body>
-      <p data-stripe-description>El recorrido anterior es una simulación local. La conexión con Stripe se habilita al configurar el sandbox.</p>
-      <p role="status" aria-live="polite" data-stripe-status></p>
-    </div>`;
-  host.prepend(details);
-
-  const body = details.querySelector('[data-stripe-body]');
-  const description = details.querySelector('[data-stripe-description]');
-  const status = details.querySelector('[data-stripe-status]');
+  const body = document.querySelector('[data-stripe-body]');
+  const description = document.querySelector('[data-stripe-description]');
+  const status = document.querySelector('[data-stripe-status]');
+  const empty = document.querySelector('[data-stripe-empty]');
   const params = new URLSearchParams(location.search);
   const returnedSession = params.get('session_id');
   let sessionCreated = false;
   let currentPayment = null;
   let pendingCheckout = null;
   let pendingRefund = null;
+  let enabled = false;
 
-  const setStatus = (message) => { status.textContent = message; };
+  const setStatus = (message) => { if (status) status.textContent = message; };
   const pending = (value) => value == null ? 'Pendiente' : new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(value / 100);
+  const money = (cents) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'EUR' }).format(cents / 100);
+  const balanceStatus = (value) => ({ pending: 'Pendiente', available: 'Disponible', not_queried: 'No consultado' }[value] || 'Pendiente');
+  const paymentStatus = (value) => ({ succeeded: 'Pagado en pruebas', pending: 'Pendiente de pago', refunded: 'Devuelto en pruebas', failed: 'Fallido en pruebas' }[value] || 'Pendiente');
+  const appendRows = (list, rows, grouped = false) => {
+    rows.forEach(([label, value]) => {
+      const dt = document.createElement('dt');
+      const dd = document.createElement('dd');
+      dt.textContent = label;
+      dd.textContent = value;
+      if (grouped) {
+        const wrap = document.createElement('div');
+        wrap.append(dt, dd);
+        list.append(wrap);
+      } else list.append(dt, dd);
+    });
+  };
   const uuid = () => crypto.randomUUID();
   const safeError = () => 'No se pudo completar la operación con Stripe. Comprueba el sandbox e inténtalo de nuevo.';
   const api = async (url, options = {}) => {
@@ -35,23 +41,85 @@ if (host) {
   };
   const post = (url, payload) => api(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
   const checkoutId = () => returnedSession && /^cs_test_[A-Za-z0-9_]+$/.test(returnedSession) ? returnedSession : null;
+  const amountInput = () => body.querySelector('[data-amount]');
+  const percentInput = () => body.querySelector('[data-percent]');
+
+  const updatePreview = () => {
+    if (currentPayment) return;
+    const euros = Number(amountInput()?.value);
+    const percent = Number(percentInput()?.value);
+    const amountCents = Math.round(euros * 100);
+    if (!Number.isFinite(euros) || !Number.isSafeInteger(amountCents) || euros < 0 || !Number.isFinite(percent)) return;
+    const fee = Math.round(amountCents * percent / 100);
+    const customer = body.querySelector('[data-preview-customer]');
+    const feeEl = body.querySelector('[data-preview-fee]');
+    const partnerEl = body.querySelector('[data-preview-partner]');
+    const note = body.querySelector('[data-preview-fee-note]');
+    const caption = body.querySelector('[data-preview-caption]');
+    if (customer) customer.textContent = money(amountCents);
+    if (feeEl) feeEl.textContent = money(fee);
+    if (partnerEl) partnerEl.textContent = money(amountCents - fee);
+    if (note) note.textContent = `Para la plataforma (${percent} %)`;
+    if (caption) caption.textContent = 'Vista previa · antes de costes de Stripe';
+  };
 
   const renderPayment = (payment) => {
     currentPayment = payment;
-    body.querySelector('[data-amount]').value = payment.amount_cents == null ? '' : String(payment.amount_cents / 100);
-    body.querySelector('[data-percent]').value = payment.application_fee_cents == null || !payment.amount_cents ? '' : String(Math.round(payment.application_fee_cents * 100 / payment.amount_cents));
+    amountInput().value = payment.amount_cents == null ? '' : String(payment.amount_cents / 100);
+    percentInput().value = payment.application_fee_cents == null || !payment.amount_cents ? '' : String(Math.round(payment.application_fee_cents * 100 / payment.amount_cents));
     const remaining = Math.max(0, (payment.amount_cents || 0) - (payment.refunded_cents || 0));
+    const refunded = (payment.refunded_cents || 0) > 0 || payment.status === 'refunded';
     const result = body.querySelector('[data-stripe-result]');
     result.replaceChildren();
-    const rows = [
-      ['Importe', pending(payment.amount_cents)], ['Devuelto', pending(payment.refunded_cents)],
-      ['Neto plataforma', pending(payment.platform_net_cents)], ['Pendiente partner', pending(payment.partner_pending_cents)],
-      ['Comisión Stripe', pending(payment.stripe_fee_cents)], ['Estado', ({ succeeded: 'Pagado en pruebas', pending: 'Pendiente de pago', refunded: 'Devuelto en pruebas', failed: 'Fallido en pruebas' }[payment.status] || 'Pendiente')],
+    const summary = document.createElement('dl');
+    summary.className = 'result-grid';
+    appendRows(summary, [
+      ['Importe', pending(payment.amount_cents)],
+      ['Devuelto', pending(payment.refunded_cents)],
+      ['Comisión de plataforma', pending(payment.application_fee_cents)],
+      ['Comisión Stripe', pending(payment.stripe_fee_cents)],
+      ['Neto plataforma', pending(payment.platform_net_cents)],
+      ['Pendiente partner', pending(payment.partner_pending_cents)],
+      ['Estado', paymentStatus(payment.status)],
+    ], true);
+    const details = document.createElement('details');
+    details.className = 'tech-details';
+    const detailsSummary = document.createElement('summary');
+    detailsSummary.textContent = 'Detalles técnicos';
+    const detailList = document.createElement('dl');
+    appendRows(detailList, [
+      ['Transferencia bruta', pending(payment.transfer_gross_cents)],
+      ['Transferencia revertida', pending(payment.transfer_reversed_cents)],
+      ['Comisión de plataforma devuelta', pending(payment.application_fee_refunded_cents)],
+      ['Estado de saldo Stripe', balanceStatus(payment.stripe_balance_status)],
       ['Webhook verificado', payment.verified_webhook_event_id || 'Webhook pendiente'],
-    ];
-    const list = document.createElement('dl');
-    rows.forEach(([label, value]) => { const dt = document.createElement('dt'); const dd = document.createElement('dd'); dt.textContent = label; dd.textContent = value; list.append(dt, dd); });
-    result.append(list);
+      ['ID de Checkout', payment.checkout_session_id || 'Pendiente'],
+      ['ID de pago', payment.payment_intent_id || 'Pendiente'],
+    ]);
+    details.append(detailsSummary, detailList);
+    result.append(summary, details);
+    if (empty) empty.hidden = true;
+    const customer = body.querySelector('[data-preview-customer]');
+    const feeEl = body.querySelector('[data-preview-fee]');
+    const partnerEl = body.querySelector('[data-preview-partner]');
+    const feeLabel = body.querySelector('[data-preview-fee-label]');
+    const note = body.querySelector('[data-preview-fee-note]');
+    const partnerNote = body.querySelector('[data-preview-partner-note]');
+    const caption = body.querySelector('[data-preview-caption]');
+    if (customer) customer.textContent = pending(payment.amount_cents);
+    if (feeEl) feeEl.textContent = pending(payment.application_fee_cents);
+    if (partnerEl) partnerEl.textContent = pending(payment.partner_pending_cents);
+    const pct = payment.application_fee_cents == null || !payment.amount_cents ? '' : ` (${Math.round(payment.application_fee_cents * 100 / payment.amount_cents)} %)`;
+    if (refunded) {
+      if (feeLabel) feeLabel.textContent = 'Comisión bruta';
+      if (note) note.textContent = `Bruta para la plataforma${pct}`;
+      if (partnerNote) partnerNote.textContent = 'Importe restante';
+    } else {
+      if (feeLabel) feeLabel.textContent = 'Comisión';
+      if (note) note.textContent = `Para la plataforma${pct}`;
+      if (partnerNote) partnerNote.textContent = 'Importe que recibe';
+    }
+    if (caption) caption.textContent = payment.stripe_fee_cents == null ? 'Costes de Stripe pendientes' : 'Resultado del pago · comisión antes de costes de Stripe';
     const refundAmount = body.querySelector('[data-refund-amount]');
     const refundButton = body.querySelector('[data-refund]');
     const refundPanel = body.querySelector('[data-stripe-refund-panel]');
@@ -63,38 +131,34 @@ if (host) {
   const refresh = async () => {
     const id = checkoutId();
     if (!id) return;
+    body.setAttribute('aria-busy', 'true');
     try { renderPayment(await api(`/api/payment?session_id=${encodeURIComponent(id)}`)); setStatus('Información de Stripe actualizada.'); }
     catch (_) { setStatus(safeError()); }
+    finally { body.removeAttribute('aria-busy'); }
   };
 
   const enable = () => {
-    description.textContent = 'Paga con una tarjeta de prueba y consulta el reparto entre plataforma y partner. Usamos una cuenta Custom de prueba; el alta Express queda fuera de esta demostración.';
-    const controls = document.createElement('div');
-    controls.innerHTML = `
-      <p class="stripe-card-help" id="stripe-card-help"><strong>Tarjeta de prueba:</strong> 4242 4242 4242 4242, una fecha futura y cualquier CVC. No uses datos personales.</p>
-      <label>Importe (€) <input data-amount type="number" min="1" max="500" step="0.01" value="25.00" inputmode="decimal"></label>
-      <label>Comisión (%) <input data-percent type="number" min="0" max="30" step="1" value="10" inputmode="numeric"></label>
-      <div class="actions"><button type="button" data-checkout aria-describedby="stripe-card-help">Ir a Checkout de Stripe (prueba)</button>
-      <button type="button" class="secondary" data-refresh>Actualizar resultado</button><a class="button-link secondary" data-new-checkout href="/" hidden>Nueva prueba</a></div>
-      <div data-stripe-result></div>
-      <section class="stripe-refund" data-stripe-refund-panel hidden><h3>Reembolso en Stripe sandbox</h3><p>Disponible tras un pago de prueba confirmado. El reembolso se solicita a Stripe, no a la simulación local.</p>
-      <label>Devolver (€) <input data-refund-amount type="number" min="0.01" step="0.01" inputmode="decimal"></label>
-      <button type="button" data-refund>Devolver importe de prueba</button></section>`;
-    body.append(controls);
-    const checkout = controls.querySelector('[data-checkout]');
-    const refund = controls.querySelector('[data-refund]');
+    if (enabled || !body) return;
+    enabled = true;
+    if (description) description.textContent = 'Sandbox TEST con partner configurado. Cuenta Custom de prueba; el alta Express no está incluida.';
+    const checkout = body.querySelector('[data-checkout]');
+    const refund = body.querySelector('[data-refund]');
+    const refreshButton = body.querySelector('[data-refresh]');
+    const newCheckout = body.querySelector('[data-new-checkout]');
     refund.disabled = true;
     checkout.disabled = Boolean(checkoutId());
-    controls.querySelector('[data-new-checkout]').hidden = !checkoutId();
-    controls.querySelector('[data-amount]').disabled = Boolean(checkoutId());
-    controls.querySelector('[data-percent]').disabled = Boolean(checkoutId());
-    controls.querySelector('[data-refresh]').addEventListener('click', refresh);
+    refreshButton.hidden = !checkoutId();
+    newCheckout.hidden = !checkoutId();
+    amountInput().disabled = Boolean(checkoutId());
+    percentInput().disabled = Boolean(checkoutId());
+    refreshButton.addEventListener('click', refresh);
     checkout.addEventListener('click', async () => {
-      const euros = Number(controls.querySelector('[data-amount]').value);
-      const percent = Number(controls.querySelector('[data-percent]').value);
+      const euros = Number(amountInput().value);
+      const percent = Number(percentInput().value);
       const amountCents = Math.round(euros * 100);
       if (!Number.isFinite(euros) || !Number.isSafeInteger(amountCents) || euros < 1 || euros > 500 || !Number.isInteger(percent) || percent < 0 || percent > 30) { setStatus('Revisa el importe y la comisión.'); return; }
       checkout.disabled = true;
+      checkout.setAttribute('aria-busy', 'true');
       try {
         if (!sessionCreated) { await post('/api/session', {}); sessionCreated = true; }
         const input = { amount_cents: amountCents, fee_percent: percent };
@@ -105,10 +169,11 @@ if (host) {
         if (url.protocol !== 'https:' || url.hostname !== 'checkout.stripe.com') throw new Error('url');
         location.assign(url.href);
       } catch (_) { setStatus(safeError()); checkout.disabled = false; }
+      finally { checkout.removeAttribute('aria-busy'); }
     });
     refund.addEventListener('click', async () => {
       const id = checkoutId();
-      const cents = Math.round(Number(controls.querySelector('[data-refund-amount]').value) * 100);
+      const cents = Math.round(Number(body.querySelector('[data-refund-amount]').value) * 100);
       const remaining = (currentPayment?.amount_cents || 0) - (currentPayment?.refunded_cents || 0);
       if (!id || !Number.isInteger(cents) || cents < 1 || cents > remaining) { setStatus('Indica un importe pendiente válido para devolver.'); return; }
       refund.disabled = true;
@@ -121,18 +186,28 @@ if (host) {
       } catch (_) { setStatus(safeError()); }
       finally { refund.disabled = !currentPayment || currentPayment.status !== 'succeeded' || currentPayment.refunded_cents >= currentPayment.amount_cents; }
     });
-    if (checkoutId()) { details.open = true; refresh(); }
-    if (params.get('cancelled') === '1') { details.open = true; setStatus('Checkout cancelado; no se ha realizado ningún cobro.'); }
+    if (checkoutId()) refresh();
+    if (params.get('cancelled') === '1') setStatus('Checkout cancelado; no se ha realizado ningún cobro.');
   };
 
+  amountInput()?.addEventListener('input', updatePreview);
+  percentInput()?.addEventListener('input', updatePreview);
+  updatePreview();
+
   if (location.protocol !== 'file:') {
+    setStatus('Comprobando el entorno de pruebas…');
     api('/api/config').then((config) => {
-      if (config.configured && config.partner_configured) {
-        document.querySelector('.badge').textContent = 'Stripe sandbox · sin dinero real';
-        document.querySelector('.scope').textContent = 'Prueba un cobro real en el sandbox de Stripe o explora la simulación local.';
-        details.hidden = false;
-        details.open = true;
+      const testOnly = config.test_only !== false;
+      if (config.configured && config.partner_configured && testOnly) {
+        const badge = document.querySelector('.badge');
+        const scope = document.querySelector('.scope');
+        if (badge) badge.textContent = 'Sandbox';
+        if (scope) scope.textContent = 'Prueba un cobro en el sandbox de Stripe o explora la simulación local.';
+        setStatus('');
         enable();
+      } else {
+        setStatus('El sandbox no está disponible en este entorno. Puedes usar la simulación local.');
+        body.querySelector('[data-checkout]').disabled = true;
       }
     }).catch(() => setStatus('El sandbox no está disponible en este entorno.'));
   }

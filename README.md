@@ -13,6 +13,10 @@ Demo de Roberto para explorar cobros de un SaaS B2B y reparto a partners con Str
 
 No se mueve dinero real. Usa únicamente los datos de prueba que indica la interfaz. El cobro se introduce en Checkout de Stripe, nunca en esta aplicación.
 
+## Diseño
+
+Referencia creada con Imagegen (modo builtin) e implementada con Grok 4.6: [imagen](docs/design/stripe-reference-v2.png) y [prompt](docs/design/imagegen-prompt-v2.txt). La interfaz usa HTML/CSS nativos y conserva la integración sandbox.
+
 ## Código
 
 - `demos/partner-payments/`: HTML, CSS y JavaScript; sin framework de frontend.

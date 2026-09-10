@@ -1,0 +1,902 @@
+{
+  "started": "2026-09-10T13:31:04.610Z",
+  "checks": [
+    {
+      "id": "desktop-two-column",
+      "ok": true,
+      "detail": "charge y=146.9375 preview y=146.9375"
+    },
+    {
+      "id": "desktop-above-fold",
+      "ok": true,
+      "detail": "charge.bottom=485.640625 preview.bottom=485.640625"
+    },
+    {
+      "id": "desktop-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "preview-cents-initial",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Vista previa · antes de costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "empty-activity",
+      "ok": true,
+      "detail": "Actividad de esta sesión\n\nAún no hay cobros en esta sesión.\n\nCrea un pago con el formulario para ver aquí el resultado real. Una sesión muestra un cobro, no un historial inventado."
+    },
+    {
+      "id": "no-fake-rows",
+      "ok": true,
+      "detail": "activity chrome"
+    },
+    {
+      "id": "console-initial",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "preview-live-cents",
+      "ok": false,
+      "detail": "{\"c\":\"123,45 €\",\"f\":\"8,64 €\",\"p\":\"114,81 €\",\"n\":\"Para la plataforma (7 %)\"} feeCents=864"
+    },
+    {
+      "id": "preview-partner-math",
+      "ok": true,
+      "detail": "{\"c\":\"123,45 €\",\"f\":\"8,64 €\",\"p\":\"114,81 €\",\"n\":\"Para la plataforma (7 %)\"}"
+    },
+    {
+      "id": "tab-hover-not-primary",
+      "ok": false,
+      "detail": "before=rgba(0, 0, 0, 0) hover=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "partners-tab-content",
+      "ok": true,
+      "detail": "partners copy"
+    },
+    {
+      "id": "tab-selected-not-filled-cta",
+      "ok": true,
+      "detail": "selected+hover bg=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "launch-content",
+      "ok": true,
+      "detail": "Del cobro al lanzamiento\n\nTú decides producto y prioridades. Yo desarrollo, valido y preparo el lanzamiento contigo.\n\nParte de la propuesta\nCuentas, roles y accesos\nBilling: suscripciones y webhooks\nE"
+    },
+    {
+      "id": "keyboard-home-payments",
+      "ok": true,
+      "detail": "Home from launch tab"
+    },
+    {
+      "id": "keyboard-arrow-partners",
+      "ok": true,
+      "detail": "ArrowRight"
+    },
+    {
+      "id": "keyboard-arrow-back",
+      "ok": true,
+      "detail": "ArrowLeft"
+    },
+    {
+      "id": "footer-contact-hover-not-cta",
+      "ok": false,
+      "detail": "contact hover bg=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "sim-collapsed-default",
+      "ok": true,
+      "detail": "open=false"
+    },
+    {
+      "id": "sim-opens-via-summary",
+      "ok": true,
+      "detail": "summary click"
+    },
+    {
+      "id": "sim-amounts",
+      "ok": true,
+      "detail": "{\"state\":\"Cobro demo_pay_0001: aprobado. Reembolsado: 0,00 €.\",\"total\":\"120,00 €\",\"platform\":\"16,25 €\",\"partner\":\"102,00 €\",\"events\":\"demo_evt_0002 · payment.succeeded\\n10/9/2026, 15:31:07\\ndemo_evt_0001 · payment.pending\\n10/9/2026, 15:31:06\"}"
+    },
+    {
+      "id": "sim-refund-amounts",
+      "ok": true,
+      "detail": "{\"state\":\"Cobro demo_pay_0001: aprobado. Reembolsado: 30,00 €.\",\"total\":\"90,00 €\",\"partner\":\"76,50 €\"}"
+    },
+    {
+      "id": "sim-ledger-actions-fit",
+      "ok": true,
+      "detail": "{\"actionsRight\":1261,\"cardRight\":1280,\"overflow\":-19,\"text\":\"Repetir webhook\\nDescargar evidencia JSON\\nReiniciar\"}"
+    },
+    {
+      "id": "tablet-768-overflow",
+      "ok": true,
+      "detail": "overflow=0 clipped=[]"
+    },
+    {
+      "id": "tablet-768-breakdown-head-fit",
+      "ok": true,
+      "detail": "{\"headW\":690,\"h2\":\"Reparto del pago\",\"cap\":\"Vista previa · antes de costes de Stripe\",\"h2Right\":204.0625,\"capRight\":729,\"headRight\":729,\"h2Overflow\":0,\"capOverflow\":0,\"overlap\":false}"
+    },
+    {
+      "id": "tablet-768-partners-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-overflow",
+      "ok": true,
+      "detail": "overflow=0 clipped=[]"
+    },
+    {
+      "id": "mobile-390-breakdown-head-fit",
+      "ok": true,
+      "detail": "{\"headW\":328,\"h2\":\"Reparto del pago\",\"cap\":\"Vista previa · antes de costes de Stripe\",\"h2Right\":155.171875,\"capRight\":359,\"headRight\":359,\"h2Overflow\":0,\"capOverflow\":0,\"overlap\":false}"
+    },
+    {
+      "id": "mobile-390-partners-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "desktop-1440-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "desktop-1440-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "tablet-768-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "tablet-768-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "tablet-768-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "mobile-390-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "mobile-390-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "mobile-390-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "desktop-1440-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "desktop-1440-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "tablet-768-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "tablet-768-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "mobile-390-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "mobile-390-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "desktop-1440-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "tablet-768-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "mobile-390-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "error-retry-enabled",
+      "ok": true,
+      "detail": "disabled=false"
+    },
+    {
+      "id": "missing-config-disabled",
+      "ok": true,
+      "detail": "checkout disabled"
+    },
+    {
+      "id": "live-mode-blocked",
+      "ok": true,
+      "detail": "status=El sandbox no está disponible en este entorno. Puedes usar la simulación local."
+    },
+    {
+      "id": "unauthorized-config-no-enable",
+      "ok": true,
+      "detail": "status=El sandbox no está disponible en este entorno. disabled=true"
+    },
+    {
+      "id": "unauthorized-payment-safe",
+      "ok": true,
+      "detail": "status=No se pudo completar la operación con Stripe. Comprueba el sandbox e inténtalo de nuevo. empty=true"
+    },
+    {
+      "id": "checkout-allowlist",
+      "ok": true,
+      "detail": "url=https://candidate.invalid/"
+    },
+    {
+      "id": "idempotency-key-present",
+      "ok": true,
+      "detail": "{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}"
+    },
+    {
+      "id": "idempotency-retry-same-key",
+      "ok": true,
+      "detail": "[\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\",\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"]"
+    },
+    {
+      "id": "session-created-first",
+      "ok": true,
+      "detail": "[{\"kind\":\"session\",\"body\":{}},{\"kind\":\"checkout\",\"body\":{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}},{\"kind\":\"checkout\",\"body\":{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}}]"
+    },
+    {
+      "id": "reject-non-test-session",
+      "ok": true,
+      "detail": "result="
+    },
+    {
+      "id": "new-trial-href",
+      "ok": true,
+      "detail": "href=/"
+    },
+    {
+      "id": "new-trial-visible",
+      "ok": true,
+      "detail": "visible"
+    },
+    {
+      "id": "loading-copy",
+      "ok": true,
+      "detail": "status=Comprobando el entorno de pruebas…"
+    },
+    {
+      "id": "cancelled-not-overwritten-by-refresh",
+      "ok": false,
+      "detail": "status=Información de Stripe actualizada."
+    },
+    {
+      "id": "validate-amount",
+      "ok": true,
+      "detail": "status=Revisa el importe y la comisión."
+    }
+  ],
+  "findings": [
+    {
+      "id": "preview-live-cents",
+      "detail": "{\"c\":\"123,45 €\",\"f\":\"8,64 €\",\"p\":\"114,81 €\",\"n\":\"Para la plataforma (7 %)\"} feeCents=864"
+    },
+    {
+      "id": "tab-hover-not-primary",
+      "detail": "before=rgba(0, 0, 0, 0) hover=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "footer-contact-hover-not-cta",
+      "detail": "contact hover bg=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "cancelled-not-overwritten-by-refresh",
+      "detail": "status=Información de Stripe actualizada."
+    }
+  ],
+  "networkHits": [
+    {
+      "scenario": "desktop-initial",
+      "hits": [
+        {
+          "url": "/api/config",
+          "method": "GET"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-initial.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-initial-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-partners.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-launch.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-local-simulation.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-initial.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-initial-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-partners.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-initial.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-initial-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-partners.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-paid.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-paid-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-paid.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-paid-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-paid.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-paid-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-refunded.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-refunded-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-refunded.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-refunded-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-refunded.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-refunded-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-pending.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-pending-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-pending.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-pending-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-pending.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-pending-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-failed.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-failed-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-failed.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/tablet-768-failed-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-failed.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-failed-full.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-error-retry.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/mobile-390-error-retry.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-missing-config.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-unauthorized-config.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-unauthorized-payment.png",
+    "/home/roberto/scratch/partners-lab-stripe-redesign/.agent/qa/redesign-v2/review/screenshots/desktop-1440-loading.png"
+  ],
+  "ended": "2026-09-10T13:31:32.359Z",
+  "failed": [
+    {
+      "id": "preview-live-cents",
+      "ok": false,
+      "detail": "{\"c\":\"123,45 €\",\"f\":\"8,64 €\",\"p\":\"114,81 €\",\"n\":\"Para la plataforma (7 %)\"} feeCents=864"
+    },
+    {
+      "id": "tab-hover-not-primary",
+      "ok": false,
+      "detail": "before=rgba(0, 0, 0, 0) hover=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "footer-contact-hover-not-cta",
+      "ok": false,
+      "detail": "contact hover bg=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "cancelled-not-overwritten-by-refresh",
+      "ok": false,
+      "detail": "status=Información de Stripe actualizada."
+    }
+  ],
+  "passed": [
+    {
+      "id": "desktop-two-column",
+      "ok": true,
+      "detail": "charge y=146.9375 preview y=146.9375"
+    },
+    {
+      "id": "desktop-above-fold",
+      "ok": true,
+      "detail": "charge.bottom=485.640625 preview.bottom=485.640625"
+    },
+    {
+      "id": "desktop-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "preview-cents-initial",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Vista previa · antes de costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "empty-activity",
+      "ok": true,
+      "detail": "Actividad de esta sesión\n\nAún no hay cobros en esta sesión.\n\nCrea un pago con el formulario para ver aquí el resultado real. Una sesión muestra un cobro, no un historial inventado."
+    },
+    {
+      "id": "no-fake-rows",
+      "ok": true,
+      "detail": "activity chrome"
+    },
+    {
+      "id": "console-initial",
+      "ok": true,
+      "detail": ""
+    },
+    {
+      "id": "preview-partner-math",
+      "ok": true,
+      "detail": "{\"c\":\"123,45 €\",\"f\":\"8,64 €\",\"p\":\"114,81 €\",\"n\":\"Para la plataforma (7 %)\"}"
+    },
+    {
+      "id": "partners-tab-content",
+      "ok": true,
+      "detail": "partners copy"
+    },
+    {
+      "id": "tab-selected-not-filled-cta",
+      "ok": true,
+      "detail": "selected+hover bg=oklch(0.46 0.22 275)"
+    },
+    {
+      "id": "launch-content",
+      "ok": true,
+      "detail": "Del cobro al lanzamiento\n\nTú decides producto y prioridades. Yo desarrollo, valido y preparo el lanzamiento contigo.\n\nParte de la propuesta\nCuentas, roles y accesos\nBilling: suscripciones y webhooks\nE"
+    },
+    {
+      "id": "keyboard-home-payments",
+      "ok": true,
+      "detail": "Home from launch tab"
+    },
+    {
+      "id": "keyboard-arrow-partners",
+      "ok": true,
+      "detail": "ArrowRight"
+    },
+    {
+      "id": "keyboard-arrow-back",
+      "ok": true,
+      "detail": "ArrowLeft"
+    },
+    {
+      "id": "sim-collapsed-default",
+      "ok": true,
+      "detail": "open=false"
+    },
+    {
+      "id": "sim-opens-via-summary",
+      "ok": true,
+      "detail": "summary click"
+    },
+    {
+      "id": "sim-amounts",
+      "ok": true,
+      "detail": "{\"state\":\"Cobro demo_pay_0001: aprobado. Reembolsado: 0,00 €.\",\"total\":\"120,00 €\",\"platform\":\"16,25 €\",\"partner\":\"102,00 €\",\"events\":\"demo_evt_0002 · payment.succeeded\\n10/9/2026, 15:31:07\\ndemo_evt_0001 · payment.pending\\n10/9/2026, 15:31:06\"}"
+    },
+    {
+      "id": "sim-refund-amounts",
+      "ok": true,
+      "detail": "{\"state\":\"Cobro demo_pay_0001: aprobado. Reembolsado: 30,00 €.\",\"total\":\"90,00 €\",\"partner\":\"76,50 €\"}"
+    },
+    {
+      "id": "sim-ledger-actions-fit",
+      "ok": true,
+      "detail": "{\"actionsRight\":1261,\"cardRight\":1280,\"overflow\":-19,\"text\":\"Repetir webhook\\nDescargar evidencia JSON\\nReiniciar\"}"
+    },
+    {
+      "id": "tablet-768-overflow",
+      "ok": true,
+      "detail": "overflow=0 clipped=[]"
+    },
+    {
+      "id": "tablet-768-breakdown-head-fit",
+      "ok": true,
+      "detail": "{\"headW\":690,\"h2\":\"Reparto del pago\",\"cap\":\"Vista previa · antes de costes de Stripe\",\"h2Right\":204.0625,\"capRight\":729,\"headRight\":729,\"h2Overflow\":0,\"capOverflow\":0,\"overlap\":false}"
+    },
+    {
+      "id": "tablet-768-partners-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-overflow",
+      "ok": true,
+      "detail": "overflow=0 clipped=[]"
+    },
+    {
+      "id": "mobile-390-breakdown-head-fit",
+      "ok": true,
+      "detail": "{\"headW\":328,\"h2\":\"Reparto del pago\",\"cap\":\"Vista previa · antes de costes de Stripe\",\"h2Right\":155.171875,\"capRight\":359,\"headRight\":359,\"h2Overflow\":0,\"capOverflow\":0,\"overlap\":false}"
+    },
+    {
+      "id": "mobile-390-partners-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "desktop-1440-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "desktop-1440-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "tablet-768-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "tablet-768-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "tablet-768-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "mobile-390-paid-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-paid-amounts",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n6,60 €\nPendiente partner\n90,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nPagado en pruebas\nWebhook verificado\nevt_test_1\nID de Checkout\ncs_test_owned\nID de pago\npi_test_1"
+    },
+    {
+      "id": "mobile-390-paid-refund-visible",
+      "ok": true,
+      "detail": "refundHidden=false"
+    },
+    {
+      "id": "mobile-390-paid-preview",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"90,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-paid-checkout-locked",
+      "ok": true,
+      "detail": "disabled=true"
+    },
+    {
+      "id": "desktop-1440-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "desktop-1440-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "tablet-768-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "tablet-768-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "mobile-390-refunded-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-refunded-partner-zero",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"0,00 €\",\"caption\":\"Resultado con costes de Stripe\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-refunded-panel-hidden",
+      "ok": true,
+      "detail": "refundHidden=true"
+    },
+    {
+      "id": "mobile-390-refunded-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n100,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n100,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n10,00 €\nNeto plataforma\n-3,40 €\nPendiente partner\n0,00 €\nComisión Stripe\n3,40 €\nEstado de saldo Stripe\npending\nEstado\nDevuelto en pruebas\nWe"
+    },
+    {
+      "id": "desktop-1440-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "tablet-768-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "mobile-390-pending-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-pending-honest",
+      "ok": true,
+      "detail": "{\"customer\":\"100,00 €\",\"fee\":\"10,00 €\",\"partner\":\"Pendiente\",\"caption\":\"Costes de Stripe pendientes\",\"note\":\"Para la plataforma (10 %)\"}"
+    },
+    {
+      "id": "desktop-1440-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "desktop-1440-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "tablet-768-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "tablet-768-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "mobile-390-failed-overflow",
+      "ok": true,
+      "detail": "overflow=0"
+    },
+    {
+      "id": "mobile-390-failed-status",
+      "ok": true,
+      "detail": "Importe\n100,00 €\nDevuelto\n0,00 €\nTransferencia bruta\n100,00 €\nTransferencia revertida\n0,00 €\nComisión de plataforma\n10,00 €\nComisión de plataforma devuelta\n0,00 €\nNeto plataforma\n0,00 €\nPendiente part"
+    },
+    {
+      "id": "error-retry-enabled",
+      "ok": true,
+      "detail": "disabled=false"
+    },
+    {
+      "id": "missing-config-disabled",
+      "ok": true,
+      "detail": "checkout disabled"
+    },
+    {
+      "id": "live-mode-blocked",
+      "ok": true,
+      "detail": "status=El sandbox no está disponible en este entorno. Puedes usar la simulación local."
+    },
+    {
+      "id": "unauthorized-config-no-enable",
+      "ok": true,
+      "detail": "status=El sandbox no está disponible en este entorno. disabled=true"
+    },
+    {
+      "id": "unauthorized-payment-safe",
+      "ok": true,
+      "detail": "status=No se pudo completar la operación con Stripe. Comprueba el sandbox e inténtalo de nuevo. empty=true"
+    },
+    {
+      "id": "checkout-allowlist",
+      "ok": true,
+      "detail": "url=https://candidate.invalid/"
+    },
+    {
+      "id": "idempotency-key-present",
+      "ok": true,
+      "detail": "{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}"
+    },
+    {
+      "id": "idempotency-retry-same-key",
+      "ok": true,
+      "detail": "[\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\",\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"]"
+    },
+    {
+      "id": "session-created-first",
+      "ok": true,
+      "detail": "[{\"kind\":\"session\",\"body\":{}},{\"kind\":\"checkout\",\"body\":{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}},{\"kind\":\"checkout\",\"body\":{\"amount_cents\":10000,\"fee_percent\":10,\"idempotency_key\":\"3ed87fd8-0e1a-4195-a9bc-98c354b37d23\"}}]"
+    },
+    {
+      "id": "reject-non-test-session",
+      "ok": true,
+      "detail": "result="
+    },
+    {
+      "id": "new-trial-href",
+      "ok": true,
+      "detail": "href=/"
+    },
+    {
+      "id": "new-trial-visible",
+      "ok": true,
+      "detail": "visible"
+    },
+    {
+      "id": "loading-copy",
+      "ok": true,
+      "detail": "status=Comprobando el entorno de pruebas…"
+    },
+    {
+      "id": "validate-amount",
+      "ok": true,
+      "detail": "status=Revisa el importe y la comisión."
+    }
+  ]
+}

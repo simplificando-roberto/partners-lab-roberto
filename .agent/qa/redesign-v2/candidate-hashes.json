@@ -1,0 +1,7 @@
+{
+  "demos/partner-payments/index.html": "b8cdca3a9bb2f84f11633bd6986abbb1643583500a371862125d6048958d467c",
+  "demos/partner-payments/styles.css": "05c4d2e824356b6ed6b64d6d26dea436e4961b9109140c896f4b3b3f890fbf2a",
+  "demos/partner-payments/app.mjs": "c9482a251cd62be9e94256a5f5625198747a894d7b4f82fbecaef4f5367983d6",
+  "demos/partner-payments/stripe-ui.mjs": "18b46246c16726833a351b4b0ce455d0104512cdecf290698021d4db986efb1e",
+  "demos/partner-payments/ledger.mjs": "37807541422bb797eb013b386a87d602de7225b2fe8c6736d0386f0b3f14c23e"
+}

@@ -1,1 +1,347 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><meta name="description" content="Demo de Stripe Connect en sandbox: cobros, reparto a partners y devoluciones."><meta property="og:description" content="Cobros y devoluciones en Stripe sandbox, más un simulador de reparto a partners."><title>Roberto / Partners Lab</title><link rel="stylesheet" href="styles.css"></head><body><main class="shell"><header><a class="brand" href="#inicio">Roberto <span>/ Partners Lab</span></a><div class="badge">Simulación local · sin cargos</div></header><section id="inicio" class="intro"><p class="eyebrow">SaaS B2B · cobros para partners</p><h1>Tu diseño ya está.<br>Yo me ocupo de llevarlo a producción.</h1><p>Soy Roberto. Esta demo muestra el cobro a clientes y el reparto a partners. Trabajo directamente contigo y preparo también accesos, emails, despliegue y seguimiento.</p><p class="scope">Explora primero la simulación local. Si está disponible, Stripe sandbox aparece como un recorrido de prueba separado.</p></section><section class="demo"><div class="tabs" role="tablist" aria-label="Áreas de la demo"><button role="tab" aria-selected="true" aria-controls="payments" id="tab-payments">Cobros</button><button role="tab" aria-selected="false" aria-controls="partners" id="tab-partners" tabindex="-1">Partners</button><button role="tab" aria-selected="false" aria-controls="launch" id="tab-launch" tabindex="-1">Lanzamiento</button></div><div id="live" class="feedback" aria-live="polite"></div><section role="tabpanel" id="payments" aria-labelledby="tab-payments"><div class="grid"><div class="controls"><p class="section-kicker">Simulación local</p><h2>Destination Charge, explicado</h2><p class="muted">El cliente paga. La plataforma retiene su comisión y el partner recibe el resto.</p><label>Partner<select id="partner"><option value="norte">Norte · habilitado</option><option value="sur">Sur · alta pendiente</option></select></label><label>Importe del cliente (€)<input id="amount" type="number" min="0.01" step="0.01" value="120.00"></label><label>Comisión de plataforma (%)<input id="fee" type="number" min="0" max="100" step="1" value="15"></label><p id="formError" class="error" role="alert" hidden></p><p class="cost">Coste ilustrativo: <strong>1,75 €</strong></p><div class="actions"><button id="simulate">Simular cobro</button><button class="secondary" id="reject">Ver caso rechazado</button></div><p id="blocker" class="notice" hidden></p></div><div class="flow" aria-label="Vista previa del reparto"><div><span id="totalLabel">Cliente · vista previa</span><strong id="total">120,00 €</strong></div><div><span id="platformLabel">Plataforma · vista previa</span><strong id="platform">16,25 €</strong><small id="commission">Comisión 18,00 € − coste 1,75 €</small></div><div><span id="partnerLabel">Partner · vista previa</span><strong id="partnerBalance">102,00 €</strong><small id="balanceNote">Saldo pendiente · no cuenta bancaria</small></div></div></div><div class="payment-state" id="paymentState">Aún no hay transacción activa. Ajusta el importe y simula el cobro para registrar un resultado.</div><details class="inspector"><summary>Ver payload de ejemplo</summary><pre id="payload"></pre><button class="secondary compact" id="copyPayload">Copiar payload</button></details><details class="refund"><summary>Reembolso de una simulación aprobada</summary><div class="refund-body"><p>Un reembolso invierte proporcionalmente el reparto. El coste procesado permanece.</p><label>Importe (€)<input id="refundAmount" type="number" min="0.01" step="0.01" value="30.00"></label><div class="actions"><button id="refund">Reembolso parcial</button><button class="secondary" id="refundAll">Reembolso total</button><button class="secondary" id="refundRepeat" disabled>Repetir reembolso</button></div></div></details><section class="ledger"><div><p class="section-kicker">Trazabilidad local</p><h3>Registro del pago</h3><p>Eventos simulados y saldos sin doble contabilización.</p></div><div class="actions"><button class="secondary" id="repeat">Repetir webhook</button><button class="secondary" id="download">Descargar evidencia JSON</button><button class="secondary" id="reset">Reiniciar</button></div><ol id="events"></ol></section></section><section role="tabpanel" id="partners" aria-labelledby="tab-partners" hidden><p class="section-kicker">Preparación de cuenta</p><h2>Partners y alta</h2><div class="partner-rows"><div><strong>Norte</strong><span><code>acct_demo_norte</code></span><em class="ok">Habilitado</em></div><div><strong>Sur</strong><span><code>acct_demo_sur</code></span><em id="surState">Alta pendiente</em><button id="onboard">Completar alta simulada</button></div></div><p class="notice">En una integración real, Stripe Hosted Onboarding realiza el alta. Esta demo no recoge KYC.</p></section><section role="tabpanel" id="launch" aria-labelledby="tab-launch" hidden><p class="section-kicker">Trabajo de lanzamiento</p><h2>Del cobro al lanzamiento</h2><p class="value">Tú decides producto y prioridades. Yo desarrollo, valido y preparo el lanzamiento contigo.</p><div class="launch-grid"><div><h3>Parte de la propuesta</h3><ul><li>Cuentas, roles y accesos</li><li>Billing: suscripciones y webhooks</li><li>Emails transaccionales</li><li>Tareas programadas</li><li>CI, despliegue y rollback</li><li>Observabilidad</li><li>Onboarding y seguimiento</li></ul></div><div><h3>Referencia del ecosistema</h3><ul><li>INSAIDR: SaaS multiusuario FastAPI/Postgres · <a href="https://insaidr.com">insaidr.com</a></li><li>Proposia: propuestas</li><li>Facturación IA: Billing</li></ul></div></div><h3>Hitos de trabajo</h3><ol class="milestones"><li>Validar flujos existentes</li><li>Vertical slice de cobro real en pruebas</li><li>Resto del MVP y lanzamiento</li></ol></section></section><footer><span>Diseñado para una conversación concreta.</span><button id="contact">Copiar mensaje de contacto</button></footer></main><script type="module" src="app.mjs"></script><script type="module" src="stripe-ui.mjs"></script></body></html>
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="description" content="Demo de Stripe Connect en sandbox: cobros, reparto a partners y devoluciones.">
+  <meta property="og:description" content="Cobros y devoluciones en Stripe sandbox, más un simulador de reparto a partners.">
+  <title>Roberto / Partners Lab</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand-cluster">
+      <a class="brand" href="#inicio">
+        <svg class="mark" viewBox="0 0 24 24" aria-hidden="true">
+          <rect width="24" height="24" rx="6" fill="currentColor"/>
+          <path d="M12 6.2 17.4 12 12 17.8 6.6 12Z" fill="oklch(99% .005 250)"/>
+        </svg>
+        <span>Partners Lab</span>
+      </a>
+      <span class="badge">Sandbox</span>
+    </div>
+    <div class="tabs" role="tablist" aria-label="Áreas de la demo">
+      <button type="button" role="tab" aria-selected="true" aria-controls="payments" id="tab-payments">Cobros</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="partners" id="tab-partners" tabindex="-1">Partners</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="launch" id="tab-launch" tabindex="-1">Lanzamiento</button>
+    </div>
+    <div class="topbar-actions">
+      <a class="code-link" href="https://github.com/simplificando-roberto/partners-lab-roberto" rel="noopener noreferrer">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8.4 16.6 4.8 13l3.6-3.6M15.6 7.4 19.2 11l-3.6 3.6M13.2 6.5l-2.4 11" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Ver código
+      </a>
+      <span class="avatar" title="Roberto" aria-label="Roberto">R</span>
+    </div>
+  </header>
+
+  <div id="live" class="feedback" aria-live="polite"></div>
+
+  <main class="shell" id="inicio">
+    <section role="tabpanel" id="payments" aria-labelledby="tab-payments">
+      <div class="hero">
+        <div>
+          <h1>Cobros que llegan a cada partner.</h1>
+          <p>Prueba un pago, sigue el reparto y devuelve el importe.</p>
+        </div>
+        <p class="scope env-note">Entorno de pruebas para explorar pagos y comisiones entre partners.</p>
+      </div>
+
+      <section id="stripeSandbox" class="stripe-workspace" data-stripe-body>
+        <div class="split">
+          <article class="card charge-card">
+            <div class="card-head">
+              <h2>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="3.5" width="14" height="17" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8.5 8h7M8.5 12h7M8.5 16h4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                Nuevo cobro
+              </h2>
+              <span class="chip">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 4.5h6l.8 2.2H20v3.2c-3.2.6-5 2.2-8 2.2s-4.8-1.6-8-2.2V6.7h4.2L9 4.5Z" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M8 13.8V19h8v-5.2" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+                Stripe sandbox
+              </span>
+            </div>
+            <div class="field-row">
+              <label class="field">Importe
+                <span class="field-control">
+                  <input data-amount type="number" min="1" max="500" step="0.01" value="100.00" inputmode="decimal" autocomplete="off">
+                  <span class="suffix">€</span>
+                </span>
+              </label>
+              <label class="field">Comisión
+                <span class="field-control">
+                  <input data-percent type="number" min="0" max="30" step="1" value="10" inputmode="numeric" autocomplete="off">
+                  <span class="suffix">%</span>
+                </span>
+              </label>
+            </div>
+            <div class="actions charge-actions">
+              <button type="button" class="primary" data-checkout disabled aria-describedby="stripe-card-help">
+                Probar pago con Stripe
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </button>
+              <button type="button" class="secondary" data-refresh hidden>Actualizar resultado</button>
+              <a class="button-link secondary" data-new-checkout href="/" hidden>Nueva prueba</a>
+            </div>
+            <p role="status" aria-live="polite" data-stripe-status></p>
+            <div class="card-foot" id="stripe-card-help">
+              <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3.5" y="6" width="17" height="12" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M3.5 10h17" stroke="currentColor" stroke-width="1.7"/></svg>
+              <div>
+                <p class="stripe-card-help"><strong>Usa una tarjeta de prueba de Stripe</strong></p>
+                <p class="hint">4242 4242 4242 4242 · fecha futura · CVC 123. No uses datos personales.</p>
+                <details class="tech-details">
+                  <summary>Detalles técnicos</summary>
+                  <p class="tech-note" data-stripe-description>Sandbox TEST con partner configurado. Cuenta Custom de prueba; el alta Express no está incluida.</p>
+                </details>
+              </div>
+            </div>
+          </article>
+
+          <article class="card breakdown-card" data-stripe-preview>
+            <div class="card-head">
+              <h2>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="5" y="4" width="14" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M8 8h8M8 12h8M8 16h5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                Reparto del pago
+              </h2>
+              <p class="preview-caption">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M12 11v5M12 8.2v.4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                <span data-preview-caption>Vista previa · antes de costes de Stripe</span>
+              </p>
+            </div>
+            <ol class="flow-diagram" aria-label="Cliente, plataforma y partner">
+              <li>
+                <span class="node node-client">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M6.5 18c.6-3 2.7-4.5 5.5-4.5s4.9 1.5 5.5 4.5" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Cliente</strong>
+                <span>Realiza el pago</span>
+              </li>
+              <li class="flow-arrow" aria-hidden="true">
+                <svg viewBox="0 0 48 16"><path d="M2 8h38M32 2l12 6-12 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </li>
+              <li>
+                <span class="node node-platform">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4.5 19V9.5L12 5l7.5 4.5V19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/><path d="M9.5 19v-5h5v5" fill="none" stroke="currentColor" stroke-width="1.7"/></svg>
+                </span>
+                <strong>Plataforma</strong>
+                <span>Retiene la comisión</span>
+              </li>
+              <li class="flow-arrow" aria-hidden="true">
+                <svg viewBox="0 0 48 16"><path d="M2 8h38M32 2l12 6-12 6" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+              </li>
+              <li>
+                <span class="node node-partner">
+                  <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="9" cy="8.5" r="2.4" fill="none" stroke="currentColor" stroke-width="1.7"/><circle cx="15.5" cy="9" r="2.1" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M4.8 18c.5-2.6 2.2-4 4.4-4s3.9 1.4 4.4 4M13 14.2c1.8-.3 3.4.7 4.2 2.8" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </span>
+                <strong>Partner</strong>
+                <span>Recibe su parte</span>
+              </li>
+            </ol>
+            <div class="split-figures">
+              <div>
+                <span>Cliente</span>
+                <strong data-preview-customer>100,00 €</strong>
+                <small>Importe total del pago</small>
+              </div>
+              <div>
+                <span data-preview-fee-label>Comisión</span>
+                <strong data-preview-fee>10,00 €</strong>
+                <small data-preview-fee-note>Para la plataforma (10 %)</small>
+              </div>
+              <div>
+                <span data-preview-partner-label>Partner</span>
+                <strong data-preview-partner>90,00 €</strong>
+                <small data-preview-partner-note>Importe que recibe</small>
+              </div>
+            </div>
+          </article>
+        </div>
+
+        <article class="card activity-card">
+          <div class="card-head">
+            <h2>
+              <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 7h14M5 12h14M5 17h9" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+              Actividad de esta sesión
+            </h2>
+          </div>
+          <div class="activity-empty" data-stripe-empty>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="6" y="4" width="12" height="16" rx="2" fill="none" stroke="currentColor" stroke-width="1.7"/><path d="M9 8h6M9 12h6M9 16h3" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <p>Aún no hay cobros en esta sesión.</p>
+            <p class="hint">Crea un pago con el formulario para ver aquí el resultado real.</p>
+          </div>
+          <div data-stripe-result></div>
+          <section class="stripe-refund" data-stripe-refund-panel hidden>
+            <h3>Devolver importe de prueba</h3>
+            <p>Reembolso en Stripe sandbox. Se solicita a Stripe, no a la simulación local.</p>
+            <label class="field">Devolver (€)
+              <input data-refund-amount type="number" min="0.01" step="0.01" inputmode="decimal">
+            </label>
+            <button type="button" data-refund disabled>Devolver importe de prueba</button>
+          </section>
+        </article>
+      </section>
+
+      <details class="card sim-disclosure" id="localSimulation">
+        <summary>
+          <span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 17.5 10.2 12 5 6.5M12.5 17.5H19" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Explorar simulación local
+          </span>
+        </summary>
+        <div class="sim-body">
+          <div class="grid">
+            <div class="controls">
+              <p class="section-kicker">Simulación local</p>
+              <h2>Destination Charge, explicado</h2>
+              <p class="muted">El cliente paga. La plataforma retiene su comisión y el partner recibe el resto. Los importes de este bloque no son la contabilidad de Stripe.</p>
+              <label class="field">Partner
+                <select id="partner">
+                  <option value="norte">Norte · habilitado</option>
+                  <option value="sur">Sur · alta pendiente</option>
+                </select>
+              </label>
+              <label class="field">Importe del cliente (€)
+                <input id="amount" type="number" min="0.01" step="0.01" value="120.00">
+              </label>
+              <label class="field">Comisión de plataforma (%)
+                <input id="fee" type="number" min="0" max="100" step="1" value="15">
+              </label>
+              <p id="formError" class="error" role="alert" hidden></p>
+              <p class="cost">Coste ilustrativo: <strong>1,75 €</strong></p>
+              <div class="actions">
+                <button type="button" id="simulate">Simular cobro</button>
+                <button type="button" class="secondary" id="reject">Ver caso rechazado</button>
+              </div>
+              <p id="blocker" class="notice" hidden></p>
+            </div>
+            <div class="flow" aria-label="Vista previa del reparto">
+              <div>
+                <span id="totalLabel">Cliente · vista previa</span>
+                <strong id="total">120,00 €</strong>
+              </div>
+              <div>
+                <span id="platformLabel">Plataforma · vista previa</span>
+                <strong id="platform">16,25 €</strong>
+                <small id="commission">Comisión 18,00 € − coste 1,75 €</small>
+              </div>
+              <div>
+                <span id="partnerLabel">Partner · vista previa</span>
+                <strong id="partnerBalance">102,00 €</strong>
+                <small id="balanceNote">Saldo pendiente · no cuenta bancaria</small>
+              </div>
+            </div>
+          </div>
+          <div class="payment-state" id="paymentState">Aún no hay transacción activa. Ajusta el importe y simula el cobro para registrar un resultado.</div>
+          <details class="inspector">
+            <summary>Ver payload de ejemplo</summary>
+            <pre id="payload"></pre>
+            <button type="button" class="secondary compact" id="copyPayload">Copiar payload</button>
+          </details>
+          <details class="refund">
+            <summary>Reembolso de una simulación aprobada</summary>
+            <div class="refund-body">
+              <p>Un reembolso invierte proporcionalmente el reparto. El coste procesado permanece.</p>
+              <label class="field">Importe (€)
+                <input id="refundAmount" type="number" min="0.01" step="0.01" value="30.00">
+              </label>
+              <div class="actions">
+                <button type="button" id="refund">Reembolso parcial</button>
+                <button type="button" class="secondary" id="refundAll">Reembolso total</button>
+                <button type="button" class="secondary" id="refundRepeat" disabled>Repetir reembolso</button>
+              </div>
+            </div>
+          </details>
+          <section class="ledger">
+            <div>
+              <p class="section-kicker">Trazabilidad local</p>
+              <h3>Registro del pago</h3>
+              <p>Eventos simulados y saldos sin doble contabilización.</p>
+            </div>
+            <div class="actions">
+              <button type="button" class="secondary" id="repeat">Repetir webhook</button>
+              <button type="button" class="secondary" id="download">Descargar evidencia JSON</button>
+              <button type="button" class="secondary" id="reset">Reiniciar</button>
+            </div>
+            <ol id="events"></ol>
+          </section>
+        </div>
+      </details>
+    </section>
+
+    <section role="tabpanel" id="partners" aria-labelledby="tab-partners" hidden>
+      <div class="hero">
+        <div>
+          <h1>Partners y alta</h1>
+          <p>Cuentas de prueba para el simulador local. El cobro de Stripe usa una cuenta Custom configurada en el sandbox.</p>
+        </div>
+      </div>
+      <article class="card">
+        <p class="section-kicker">Preparación de cuenta</p>
+        <div class="partner-rows">
+          <div>
+            <strong>Norte</strong>
+            <span><code>acct_demo_norte</code></span>
+            <em class="ok">Habilitado</em>
+          </div>
+          <div>
+            <strong>Sur</strong>
+            <span><code>acct_demo_sur</code></span>
+            <em id="surState">Alta pendiente</em>
+            <button type="button" id="onboard">Completar alta simulada</button>
+          </div>
+        </div>
+        <p class="notice">En una integración real, Stripe Hosted Onboarding realiza el alta. Esta demo no recoge KYC. La cuenta usada en Checkout es Custom de prueba; Express no está validado.</p>
+      </article>
+    </section>
+
+    <section role="tabpanel" id="launch" aria-labelledby="tab-launch" hidden>
+      <div class="hero">
+        <div>
+          <h1>Del cobro al lanzamiento</h1>
+          <p class="value">Tú decides producto y prioridades. Yo desarrollo, valido y preparo el lanzamiento contigo.</p>
+        </div>
+      </div>
+      <div class="launch-grid">
+        <article class="card">
+          <h2>Parte de la propuesta</h2>
+          <ul>
+            <li>Cuentas, roles y accesos</li>
+            <li>Billing: suscripciones y webhooks</li>
+            <li>Emails transaccionales</li>
+            <li>Tareas programadas</li>
+            <li>CI, despliegue y rollback</li>
+            <li>Observabilidad</li>
+            <li>Onboarding y seguimiento</li>
+          </ul>
+        </article>
+        <article class="card">
+          <h2>Referencia del ecosistema</h2>
+          <ul>
+            <li>INSAIDR: SaaS multiusuario FastAPI/Postgres · <a href="https://insaidr.com">insaidr.com</a></li>
+            <li>Proposia: propuestas</li>
+            <li>Facturación IA: Billing</li>
+          </ul>
+        </article>
+      </div>
+      <article class="card">
+        <h2>Hitos de trabajo</h2>
+        <ol class="milestones">
+          <li>Validar flujos existentes</li>
+          <li>Vertical slice de cobro real en pruebas</li>
+          <li>Resto del MVP y lanzamiento</li>
+        </ol>
+      </article>
+    </section>
+  </main>
+
+  <footer>
+    <span><strong>Roberto</strong> · Desarrollo y lanzamiento de SaaS</span>
+    <nav class="footer-links" aria-label="Pie">
+      <a href="https://github.com/simplificando-roberto/partners-lab-roberto" rel="noopener noreferrer">Aprender</a>
+      <a href="https://github.com/simplificando-roberto/partners-lab-roberto" rel="noopener noreferrer">Documentación</a>
+      <button type="button" id="contact" class="footer-contact">Contacto</button>
+    </nav>
+  </footer>
+  <script type="module" src="app.mjs"></script>
+  <script type="module" src="stripe-ui.mjs"></script>
+</body>
+</html>
